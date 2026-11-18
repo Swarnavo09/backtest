@@ -19,6 +19,7 @@ CONFIG = dict(
     lots=4, margin_per_lot=40_000, daily_cap=5_000, max_trades=2, skip_after_losing_days=3,
     # ---- entry
     adx_min=20, window=("09:25", "14:00"), flip_candle_only=False,
+    st_period=10, st_mult=3.0, adx_period=14,   # indicator settings (also used for the higher-TF Supertrend)
     trend_filter_atr=None,     # e.g. 0.15 -> price must already be >= 0.15 x daily ATR from today's open
                                #              in the trade direction (trade WITH the day's move)
     htf_minutes=None,          # e.g. 60 -> 1-hour Supertrend must agree with the trade
@@ -76,15 +77,18 @@ class Lab:
         self.m1 = {k: (v.index.values, v.Open.values, v.High.values, v.Low.values, v.Close.values)
                    for k, v in df1.groupby(df1.index.normalize())}
 
-    def tf(self, minutes):
-        if minutes not in self._tf:
-            b = C.candles(self.df1, minutes)
-            b["st"], b["dir"] = C.supertrend(b, 10, 3.0)
-            b["adx"] = C.adx(b, 14)
+    def tf(self, minutes, st_period=10, st_mult=3.0, adx_period=14):
+        key = (minutes, st_period, st_mult, adx_period)
+        if key not in self._tf:
+            if minutes not in self._tf:
+                self._tf[minutes] = C.candles(self.df1, minutes)
+            b = self._tf[minutes].copy()
+            b["st"], b["dir"] = C.supertrend(b, st_period, st_mult)
+            b["adx"] = C.adx(b, adx_period)
             b["flip"] = b["dir"] != b["dir"].shift()
             b["date"] = b.index.normalize()
-            self._tf[minutes] = b
-        return self._tf[minutes]
+            self._tf[key] = b
+        return self._tf[key]
 
     def years_left(self, now64, expiry, model):
         """Vectorised time-to-expiry in years for an array of datetime64 'now' values."""
@@ -101,8 +105,9 @@ class Lab:
     # ------------------------------------------------------------------------- backtest
     def run(self, tf_minutes, start, end, **over):
         cfg = {**CONFIG, **over}
-        tf = self.tf(tf_minutes)
-        htf = self.tf(cfg["htf_minutes"]) if cfg["htf_minutes"] else None
+        ind = (cfg["st_period"], cfg["st_mult"], cfg["adx_period"])
+        tf = self.tf(tf_minutes, *ind)
+        htf = self.tf(cfg["htf_minutes"], cfg["st_period"], cfg["st_mult"], 14) if cfg["htf_minutes"] else None
         if htf is not None:  # HTF direction known at each HTF candle end
             hdir = pd.Series(htf["dir"].values, index=pd.DatetimeIndex(htf["end"].values)).sort_index()
         days = self.td[(self.td >= pd.Timestamp(start)) & (self.td <= pd.Timestamp(end))]

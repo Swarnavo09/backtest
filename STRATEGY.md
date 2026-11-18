@@ -5,9 +5,11 @@
 - **Size:** 4 lots on every trade.
 - **Expiry:** always the **next weekly expiry**, never the current week's. *Example:* if this week's expiry is Tuesday 10th, trade the Tuesday 17th contracts, every day of the week, including expiry day itself.
 
+> **Version 2 (tuned):** Supertrend changed from (10, 3) to **(10, 2)**, and the ADX threshold raised from 25 to **30**. Both were tuned on 2019 → Nov 2024 data only (`research/tune_indicators.py`, `research/tune_exits.py`). Result: `results/refined/FINAL_RESULTS.md`.
+
 ## 2. Chart setup
-- **15‑minute** NIFTY spot chart: Supertrend (10, 3) and ADX (14).
-- **1‑hour** NIFTY spot chart: Supertrend (10, 3).
+- **15‑minute** NIFTY spot chart: Supertrend (**10, 2**) and ADX (14).
+- **1‑hour** NIFTY spot chart: Supertrend (**10, 2**).
 
 ## 3. Days you skip
 - Skip the day if there is **no Supertrend flip on the 15‑min chart between 9:30 and 11:00 AM**.
@@ -17,7 +19,7 @@
 ## 4. Entry: check only when a 15‑minute candle closes
 All of these must be true:
 1. The 15‑min Supertrend **flipped colour today**, and the candle closed on the new side of the line.
-2. **ADX (14) is above 25.**
+2. **ADX (14) is above 30.**
 3. The **1‑hour Supertrend is the same colour** as the new 15‑min colour.
 4. The candle closes **between 9:30 and 11:00 AM**.
 

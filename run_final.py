@@ -108,7 +108,7 @@ def main():
     ax.plot(eq.index, eq.values / 1000, lw=1.8)
     ax.axhline(0, color="gray", lw=0.8)
     ax.set_ylabel("cumulative net P&L, ₹ thousand")
-    ax.set_title("Final strategy, last 2 years (4 lots, 15‑min, SL 5k / target 15k)")
+    ax.set_title(f"Last 2 years, 4 lots, 15-min, ST({FINAL['st_period'] if 'st_period' in FINAL else 10},{FINAL.get('st_mult', 3.0)}) ADX>{FINAL['adx_min']}, SL 5k / target 15k")
     ax.grid(alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(OUT, "equity.png"), dpi=130)
