@@ -1,0 +1,25 @@
+tf,filter,st_exit,trail,trades,win,pf,net_2y,yr1,yr2,max_dd,prior_pf,prior_per_yr
+15m,good setups only,True,of_peak,42,59.5,0.65,-17812,-4493,-13319,-25058,0.6,-10612
+15m,good setups only,False,of_peak,42,59.5,0.65,-17812,-4493,-13319,-25058,0.6,-10612
+10m,good setups only,False,incremental,68,48.5,0.76,-20858,-18249,-2609,-46104,0.75,-9362
+10m,good setups only,True,incremental,68,48.5,0.76,-20858,-18249,-2609,-46104,0.76,-9273
+15m,good setups only,True,incremental,42,45.2,0.43,-29362,-7955,-21407,-34774,0.57,-11454
+15m,good setups only,False,incremental,42,45.2,0.43,-29362,-7955,-21407,-34774,0.57,-11454
+10m,good setups only,False,of_peak,68,57.4,0.63,-32177,-25304,-6873,-44398,0.67,-12589
+10m,good setups only,True,of_peak,68,57.4,0.63,-32177,-25304,-6873,-44398,0.67,-12500
+5m,good setups only,True,incremental,143,39.2,0.54,-106300,-91665,-14635,-125666,0.64,-28855
+5m,good setups only,False,incremental,143,39.2,0.54,-106543,-91665,-14878,-125909,0.63,-29715
+15m,all signals,True,of_peak,215,54.4,0.6,-114367,-56138,-58229,-124975,0.59,-59825
+15m,all signals,False,of_peak,215,54.4,0.6,-114367,-56138,-58229,-124975,0.59,-59825
+15m,all signals,True,incremental,212,49.1,0.59,-116996,-53486,-63510,-123390,0.63,-53242
+15m,all signals,False,incremental,212,49.1,0.59,-116996,-53486,-63510,-123390,0.63,-53242
+5m,good setups only,True,of_peak,143,46.2,0.47,-123083,-91809,-31274,-136337,0.6,-32232
+5m,good setups only,False,of_peak,143,46.2,0.46,-123326,-91809,-31517,-136580,0.6,-32453
+10m,all signals,False,incremental,323,45.5,0.6,-188921,-103106,-85815,-196686,0.64,-70065
+10m,all signals,True,incremental,323,45.5,0.6,-188921,-103106,-85815,-196686,0.64,-70319
+10m,all signals,False,of_peak,326,51.8,0.57,-201702,-98712,-102990,-207536,0.62,-73429
+10m,all signals,True,of_peak,326,51.8,0.57,-201702,-98712,-102990,-207536,0.62,-73683
+5m,all signals,False,incremental,544,45.4,0.57,-334909,-238104,-96805,-338685,0.57,-143727
+5m,all signals,False,of_peak,551,51.9,0.56,-345230,-225745,-119485,-351410,0.56,-147071
+5m,all signals,True,of_peak,549,51.7,0.56,-345745,-224904,-120841,-351925,0.54,-152271
+5m,all signals,True,incremental,541,44.7,0.55,-357458,-254988,-102470,-361234,0.55,-150281

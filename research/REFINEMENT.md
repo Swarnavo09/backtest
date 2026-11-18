@@ -96,3 +96,21 @@ The grid ran 120 configurations on the **last 1 year** (18‑Nov‑2025 → 18�
 - **1:3 targets are rarely reachable intraday.** At a 3–5% stop, a 1:3 target is hit on only 0–7% of trades, because it needs more premium decay than the spread can deliver in one session.
 
 **Verdict:** last year was profitable, but the same rules lost in 4 of the previous 6 years. The profit is most likely a favourable market year, plus picking the best of 120 combinations after the fact. It is not proven.
+
+## 7. Rupee exits: SL ₹2.5k, lock ₹300 at ₹1.5k, 60% trail, book 3 lots at ₹6k, runner to ₹8k (`research/rupee_exits.py`)
+
+The test covers the last 2 years (18‑Nov‑2024 → 18‑Nov‑2026) with 4 lots, max 2 trades a day and a ₹10k daily cap. It ran 24 variants: 5/10/15‑min × all signals vs good setups only × Supertrend exit on/off × two readings of the 60% trail.
+**All 24 variants lost money**, and every one also lost in 2019–2024 (profit factor 0.54–0.76).
+
+| Best variants (2 years) | Trades | Win % | PF | Net 2y | Max DD |
+|---|---:|---:|---:|---:|---:|
+| 15‑min, good setups, stop = 60% of peak | 42 | 59.5 | 0.65 | −₹17.8k | −₹25.1k |
+| 10‑min, good setups, incremental trail | 68 | 48.5 | 0.76 | −₹20.9k | −₹46.1k |
+| 10‑min, all signals | 323 | 45.5 | 0.60 | −₹1.89 L | −₹1.97 L |
+| 5‑min, all signals | 544 | 45.4 | 0.57 | −₹3.35 L | −₹3.39 L |
+
+**Why:**
+- **The losers are much bigger than the winners.** A ₹2,500 stop costs about **₹2,980** after slippage and charges.
+- **A typical locked-profit exit nets only ₹300–1,500.** The +₹300 lock actually nets about **−₹100** after roughly ₹450 of trading costs.
+- **The ₹6k target is rarely reached:** 5 of 68 trades on 10‑min.
+- **The stop is as tight as the original.** ₹2,500 across 4 lots is about ₹625 per lot, or 9–12 points of spread value. That is roughly 30 Nifty points, the same noise‑level stop as the original −1.5% rule.

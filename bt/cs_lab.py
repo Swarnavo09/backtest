@@ -30,7 +30,11 @@ CONFIG = dict(
     stop="ladder",             # "ladder" (user % ladder) | "fixed" (constant init_stop, no trailing)
                                # | "none" (no % stop: ST close / cap / 15:15 only)
     init_stop=-1.5, partial_at=3.0, st_exit=True, square_off="15:15",
-    target_pct=None,           # fixed profit target in % of margin (e.g. 2 x stop for 1:2). Use with stop="fixed"
+    target_pct=None,
+    # ---- rupee-based exits for the WHOLE position (stop="rupee")
+    sl_total=2_500, lock_trigger=1_500, lock_level=300, trail_frac=0.6,
+    trail_mode="incremental",  # "incremental": stop = 300 + 60% x (peak - 1500) | "of_peak": stop = max(300, 60% x peak)
+    partial_total=6_000, final_total=8_000, runner_trail=0.6,           # fixed profit target in % of margin (e.g. 2 x stop for 1:2). Use with stop="fixed"
     # ---- model
     time_model="calendar",     # "calendar" (BS calendar time) | "trading" (theta accrues in market hours only)
 )
@@ -139,7 +143,7 @@ class Lab:
                 st_dir = int(c["dir"])
                 pos_dir = st_dir if cfg["direction"] == "follow" else -st_dir
                 if n_tr == 1 and not (st_dir != last_dir and flips[-1][0] > last_entry_end
-                                      and cap + min(booked, 0) >= abs(cfg["init_stop"]) / 100 * mpl * lots):
+                                      and cap + min(booked, 0) >= (cfg["sl_total"] if cfg["stop"] == "rupee" else abs(cfg["init_stop"]) / 100 * mpl * lots)):
                     continue
                 s = float(c["Close"])
                 if cfg["trend_filter_atr"] is not None and st_dir * (s - day_open) < cfg["trend_filter_atr"] * dd.atr14:
@@ -148,7 +152,8 @@ class Lab:
                     hd = hdir[hdir.index <= pd.Timestamp(ends[j])]
                     if len(hd) == 0 or int(hd.iat[-1]) != st_dir:
                         continue
-                res = self._trade(cfg, day, tm, mo, mh, ml, mc, bars, j, s, pos_dir, st_dir, expiry, iv, lsz, booked)
+                fn = self._trade_rupee if cfg["stop"] == "rupee" else self._trade
+                res = fn(cfg, day, tm, mo, mh, ml, mc, bars, j, s, pos_dir, st_dir, expiry, iv, lsz, booked)
                 res.update(date=day.date(), trade_no=n_tr + 1, adx=round(float(c["adx"]), 1), timeframe=f"{tf_minutes}m",
                            lot_size=lsz, lots=lots, expiry=expiry.date())
                 trades.append(res)
@@ -311,4 +316,120 @@ class Lab:
             comment=(f"{word}: Supertrend flipped {'red->green' if st_dir == 1 else 'green->red'}"
                      f"{' (faded)' if cfg['direction'] == 'fade' else ''}; sold {short_k}{kind}E / bought {long_k}{kind}E, "
                      f"credit {credit:.1f}. Exits: " + "; ".join(f"{n} lot(s) {pd.Timestamp(ts):%H:%M} spot {sp:.0f} ({r})" for n, sp, ts, r in rows)),
+            _exit_ts=pd.Timestamp(last[2]))
+
+    # ------------------------------------------------------------------------- rupee-based exits
+    def _trade_rupee(self, cfg, day, tm, mo, mh, ml, mc, bars, j, s, pos_dir, st_dir, expiry, iv, lsz, booked_before):
+        """Exits in rupees for the whole position:
+        SL -sl_total; at +lock_trigger stop -> +lock_level; then trail (60% rule);
+        at +partial_total book all but 1 lot; runner trails at runner_trail x its own peak and
+        exits when the trade's total reaches final_total; else Supertrend close (optional) / 15:15."""
+        lots, cap = cfg["lots"], cfg["daily_cap"]
+        entry_ts = bars["end"].values[j]
+        if pos_dir == 1:
+            kind = "P"; short_k = math.floor((s - cfg["short_offset"]) / C.STRIKE_STEP) * C.STRIKE_STEP; long_k = short_k - cfg["width"]
+        else:
+            kind = "C"; short_k = math.ceil((s + cfg["short_offset"]) / C.STRIKE_STEP) * C.STRIKE_STEP; long_k = short_k + cfg["width"]
+        vs, vl = C.iv_for(short_k, s, iv, kind), C.iv_for(long_k, s, iv, kind)
+
+        def legs(spot, now64):
+            t = self.years_left(np.atleast_1d(now64), expiry, cfg["time_model"])
+            return _bs(spot, short_k, t, vs, kind), _bs(spot, long_k, t, vl, kind)
+        ps0, pl0 = (float(x[0]) for x in legs(np.array([s]), entry_ts))
+        buy_l, sell_s = pl0 + C.SLIPPAGE_PTS, max(ps0 - C.SLIPPAGE_PTS, 0.05)
+        credit = sell_s - buy_l
+        entry_ch = C.charges(day, buy_l * lots * lsz, sell_s * lots * lsz, 2)
+
+        def lot_pnl(spot, now64):  # MTM per lot in rupees (exit slippage/charges added when booked)
+            a, b = legs(spot, now64)
+            return (credit - (a - b)) * lsz
+
+        sq_ts = np.datetime64(day + pd.Timedelta(hours=int(cfg["square_off"][:2]), minutes=int(cfg["square_off"][3:])))
+        st_exit_ts = st_exit_px = None
+        if cfg["st_exit"] and cfg["direction"] == "follow":
+            later = bars.iloc[j + 1:]; against = later[later["dir"] != st_dir]
+            if len(against):
+                st_exit_ts, st_exit_px = against["end"].values[0], float(against["Close"].iat[0])
+        limit = sq_ts if st_exit_ts is None or st_exit_ts >= sq_ts else st_exit_ts
+        sel = (tm >= entry_ts) & (tm < limit)
+        T, O, H, L, Cl = tm[sel], mo[sel], mh[sel], ml[sel], mc[sel]
+        rows = []
+
+        def solve(target, i, good, bad, now):
+            """spot between good/bad where per-lot pnl == target"""
+            if (lot_pnl(np.array([good]), now)[0] - target) * (lot_pnl(np.array([bad]), now)[0] - target) > 0:
+                return good
+            lo_s, hi_s = good, bad
+            up = lot_pnl(np.array([good]), now)[0] > target
+            for _ in range(25):
+                mid = (lo_s + hi_s) / 2
+                if (lot_pnl(np.array([mid]), now)[0] > target) == up:
+                    lo_s = mid
+                else:
+                    hi_s = mid
+            return (lo_s + hi_s) / 2
+
+        n_open, done = lots, False
+        if len(T):
+            now = T + np.timedelta64(1, "m")
+            adv, fav = (L, H) if pos_dir == 1 else (H, L)
+            p_o, p_a, p_c, p_f = lot_pnl(O, now), lot_pnl(adv, now), lot_pnl(Cl, now), lot_pnl(fav, now)
+            peak, runner_peak, booked_part = -1e18, None, 0.0
+            for i in range(len(T)):
+                if n_open == lots:  # ---- phase 1: whole position
+                    if peak < cfg["lock_trigger"]:
+                        stop = -cfg["sl_total"]
+                    elif cfg["trail_mode"] == "incremental":
+                        stop = cfg["lock_level"] + cfg["trail_frac"] * (peak - cfg["lock_trigger"])
+                    else:
+                        stop = max(cfg["lock_level"], cfg["trail_frac"] * peak)
+                    cap_hit = booked_before + lots * p_a[i] <= -cap
+                    if lots * p_a[i] <= stop or cap_hit:
+                        tgt = max(stop, -cap - booked_before) / lots
+                        fill = O[i] if p_o[i] <= tgt else solve(tgt, i, O[i], adv[i], now[i])
+                        why = ("daily loss cap" if cap_hit and stop < -cap - booked_before else
+                               "stop loss -Rs %d" % cfg["sl_total"] if stop < 0 else "trailing stop locked +Rs %d" % stop)
+                        rows.append((n_open, float(fill), T[i], why)); n_open = 0; done = True; break
+                    if lots > 1 and lots * p_f[i] >= cfg["partial_total"]:
+                        tgt = cfg["partial_total"] / lots
+                        fill = O[i] if p_o[i] >= tgt else solve(tgt, i, O[i], fav[i], now[i])
+                        rows.append((lots - 1, float(fill), T[i], "profit lock: Rs %d reached, %d lots booked" % (cfg["partial_total"], lots - 1)))
+                        booked_part = (lots - 1) * tgt
+                        n_open, runner_peak = 1, tgt
+                        continue
+                    peak = max(peak, lots * p_c[i])
+                else:  # ---- phase 2: single runner lot
+                    stop = cfg["runner_trail"] * runner_peak
+                    if p_a[i] <= stop:
+                        fill = O[i] if p_o[i] <= stop else solve(stop, i, O[i], adv[i], now[i])
+                        rows.append((1, float(fill), T[i], "runner trailing stop (60%% of its peak) +Rs %d" % stop)); n_open = 0; done = True; break
+                    tgt = cfg["final_total"] - booked_part
+                    if p_f[i] >= tgt:
+                        fill = O[i] if p_o[i] >= tgt else solve(tgt, i, O[i], fav[i], now[i])
+                        rows.append((1, float(fill), T[i], "final target Rs %d reached" % cfg["final_total"])); n_open = 0; done = True; break
+                    runner_peak = max(runner_peak, p_c[i])
+        if not done:
+            if st_exit_ts is not None and st_exit_ts < sq_ts:
+                rows.append((n_open, st_exit_px, st_exit_ts, "candle closed beyond Supertrend"))
+            else:
+                i_sq = np.flatnonzero(tm >= sq_ts)
+                rows.append((n_open, float(mo[i_sq[0]] if len(i_sq) else mc[-1]), sq_ts, "15:15 square-off"))
+        gross, ch = 0.0, entry_ch
+        for n, spot, ts, _ in rows:
+            a, b = (float(x[0]) for x in legs(np.array([spot]), np.datetime64(ts)))
+            bb, so = a + C.SLIPPAGE_PTS, max(b - C.SLIPPAGE_PTS, 0.05)
+            q = n * lsz
+            gross += (credit - (bb - so)) * q
+            ch += C.charges(day, bb * q, so * q, 2)
+        word = "Bullish" if pos_dir == 1 else "Bearish"
+        last = rows[-1]
+        return dict(
+            direction=word, strategy="Bull Put Spread" if pos_dir == 1 else "Bear Call Spread",
+            entry_time=pd.Timestamp(entry_ts).strftime("%H:%M"), entry_spot=round(s, 1),
+            short_strike=int(short_k), long_strike=int(long_k), option_type=kind + "E", net_credit=round(credit, 2),
+            exit_time=pd.Timestamp(last[2]).strftime("%H:%M"), exit_spot=round(last[1], 1), exit_reason=last[3],
+            gross_pnl=round(gross), charges=round(ch), net_pnl=round(gross - ch), result="WIN" if gross - ch > 0 else "LOSS",
+            comment=(f"{word}: Supertrend flipped {'red->green' if st_dir == 1 else 'green->red'} at {pd.Timestamp(entry_ts):%H:%M}; "
+                     f"sold {short_k}{kind}E / bought {long_k}{kind}E exp {expiry:%d-%b-%y}, credit {credit:.1f}. Exits: "
+                     + "; ".join(f"{n} lot(s) {pd.Timestamp(ts):%H:%M} spot {sp:.0f} ({r})" for n, sp, ts, r in rows)),
             _exit_ts=pd.Timestamp(last[2]))
