@@ -27,8 +27,10 @@ CONFIG = dict(
     # ---- structure
     short_offset=100, width=500, expiry="rule",   # "rule" (>=5 calendar days) or "nearest" weekly
     # ---- exits
-    stop="ladder",             # "ladder" (user % ladder) | "none" (no % stop: ST close / cap / 15:15 only)
+    stop="ladder",             # "ladder" (user % ladder) | "fixed" (constant init_stop, no trailing)
+                               # | "none" (no % stop: ST close / cap / 15:15 only)
     init_stop=-1.5, partial_at=3.0, st_exit=True, square_off="15:15",
+    target_pct=None,           # fixed profit target in % of margin (e.g. 2 x stop for 1:2). Use with stop="fixed"
     # ---- model
     time_model="calendar",     # "calendar" (BS calendar time) | "trading" (theta accrues in market hours only)
 )
@@ -214,7 +216,12 @@ class Lab:
             p_open, p_adv, p_close = pnl_lot(O, now), pnl_lot(adv, now), pnl_lot(Cl, now)
             pct_close = p_close / mpl * 100
             peak_prev = np.concatenate([[-99.0], np.maximum.accumulate(pct_close)[:-1]])
-            stop_pct = _stop_ladder(peak_prev, cfg["init_stop"]) if cfg["stop"] == "ladder" else np.full(len(T), -1e9)
+            if cfg["stop"] == "ladder":
+                stop_pct = _stop_ladder(peak_prev, cfg["init_stop"])
+            elif cfg["stop"] == "fixed":
+                stop_pct = np.full(len(T), float(cfg["init_stop"]))
+            else:
+                stop_pct = np.full(len(T), -1e9)
             stop_rs = stop_pct / 100 * mpl
             hit_stop = p_adv <= stop_rs
             part_idx = np.flatnonzero(pct_close >= cfg["partial_at"]) if cfg["partial_at"] else np.array([], int)
@@ -226,7 +233,28 @@ class Lab:
             i_stop = int(np.argmax(hit_stop)) if hit_stop.any() else 10 ** 9
             i_cap = int(np.argmax(hit_cap)) if hit_cap.any() else 10 ** 9
             i_first = min(i_stop, i_cap)
-            if lots == 1 and ip < i_first:  # 1 lot: +3% closes everything
+            i_tgt = 10 ** 9
+            if cfg["target_pct"]:
+                fav = H if pos_dir == 1 else L
+                tgt_rs = cfg["target_pct"] / 100 * mpl
+                hit_t = pnl_lot(fav, now) >= tgt_rs
+                i_tgt = int(np.argmax(hit_t)) if hit_t.any() else 10 ** 9
+            if i_tgt < i_first:  # target reached first (same-minute ties go to the stop = conservative)
+                i = i_tgt
+                if p_open[i] >= tgt_rs:
+                    fill = O[i]
+                else:
+                    lo_s, hi_s = O[i], fav[i]
+                    for _ in range(25):
+                        mid = (lo_s + hi_s) / 2
+                        if pnl_lot(np.array([mid]), now[i])[0] < tgt_rs:
+                            lo_s = mid
+                        else:
+                            hi_s = mid
+                    fill = (lo_s + hi_s) / 2
+                book(lots, fill, T[i], f"target +{cfg['target_pct']:.1f}% hit")
+                exit_done = True
+            elif lots == 1 and ip < i_first:  # 1 lot: +3% closes everything
                 book(1, Cl[ip], now[ip], f"+{cfg['partial_at']:.0f}% profit booking")
                 exit_done = True
             else:

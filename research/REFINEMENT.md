@@ -71,3 +71,28 @@ That is about 33 trades a year and roughly **1–8% a year on ₹1.6 L margin**.
    - trade the signals with fewer fills (single‑leg or futures);
    - hold credit spreads past one session, so overnight time decay works for you.
 4. Get real historical option prices. Every option P&L here is modelled with Black‑Scholes, and the conclusions above are most sensitive to slippage and to how fast time decay really happens during market hours.
+
+## 6. Wider stop + fixed 1:2 / 1:3 reward:risk, ₹10k daily cap, max 2 trades, skip weak days (`research/rr_grid.py`)
+
+The grid ran 120 configurations on the **last 1 year** (18‑Nov‑2025 → 18‑Nov‑2026): 5/10/15‑min × stop 1.5/2/3/4/5% × 1:2 or 1:3 × all signals vs good setups only × Supertrend exit on/off.
+"Good setup" means: 1‑hour Supertrend agrees, ADX > 25, and the flip comes between 09:25 and 11:00. Every other day is skipped.
+
+- **38 of 120 configurations were profitable last year.** All profitable ones were 10‑min with good setups only. All 5‑min with all signals lost ₹1.75–2.2 L.
+- **Best: 10‑min, stop −3% (₹1,200/lot), target +6% (1:2), good setups only, no Supertrend exit.**
+  It made 41 trades, won 58.5%, and netted **+₹64,050** (profit factor 1.84, max drawdown −₹21.9k).
+  Exits: 18 at the 15:15 square‑off, 13 at the stop, 10 at the target.
+- **The same rules, year by year** (each period runs 18‑Nov to 18‑Nov):
+
+| Period | Trades | Win % | Net |
+|---|---:|---:|---:|
+| 2019–20 | 34 | 50 | +₹9.5k |
+| 2020–21 | 17 | 41 | −₹18.7k |
+| 2021–22 | 39 | 46 | −₹13.6k |
+| 2022–23 | 31 | 29 | −₹68.7k |
+| 2023–24 | 32 | 41 | +₹1.2k |
+| 2024–25 | 26 | 35 | −₹21.3k |
+| **2025–26** | 40 | 60 | **+₹65.9k** |
+
+- **1:3 targets are rarely reachable intraday.** At a 3–5% stop, a 1:3 target is hit on only 0–7% of trades, because it needs more premium decay than the spread can deliver in one session.
+
+**Verdict:** last year was profitable, but the same rules lost in 4 of the previous 6 years. The profit is most likely a favourable market year, plus picking the best of 120 combinations after the fact. It is not proven.
