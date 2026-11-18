@@ -25,7 +25,7 @@ CONFIG = dict(
     # ---- direction
     direction="follow",        # "follow" the flip (user rule) or "fade" it (sell the opposite spread)
     # ---- structure
-    short_offset=100, width=500, expiry="rule",   # "rule" (>=5 calendar days) or "nearest" weekly
+    short_offset=100, width=500, expiry="rule",   # "rule" (>=5 calendar days) | "nearest" | "next" weekly
     # ---- exits
     stop="ladder",             # "ladder" (user % ladder) | "fixed" (constant init_stop, no trailing)
                                # | "none" (no % stop: ST close / cap / 15:15 only)
@@ -120,7 +120,12 @@ class Lab:
             tm, mo, mh, ml, mc = self.m1[day]
             dd = self.d.loc[day]
             iv, lsz = dd.iv, C.lot_size(day)
-            expiry = self.cal.pick(day) if cfg["expiry"] == "rule" else self.cal.expiries_from(day, 1)[0]
+            if cfg["expiry"] == "rule":
+                expiry = self.cal.pick(day)
+            elif cfg["expiry"] == "next":      # always the NEXT weekly expiry (skip the current week's)
+                expiry = self.cal.expiries_from(day, 2)[1]
+            else:                              # "nearest"
+                expiry = self.cal.expiries_from(day, 1)[0]
             day_open = mo[0]
             booked, n_tr, stopped, last_dir, last_entry_end, busy_until = 0.0, 0, False, None, None, None
             flips = []
@@ -390,7 +395,11 @@ class Lab:
                         why = ("daily loss cap" if cap_hit and stop < -cap - booked_before else
                                "stop loss -Rs %d" % cfg["sl_total"] if stop < 0 else "trailing stop locked +Rs %d" % stop)
                         rows.append((n_open, float(fill), T[i], why)); n_open = 0; done = True; break
-                    if lots > 1 and lots * p_f[i] >= cfg["partial_total"]:
+                    if cfg["partial_total"] is None and lots * p_f[i] >= cfg["final_total"]:  # single full target
+                        tgt = cfg["final_total"] / lots
+                        fill = O[i] if p_o[i] >= tgt else solve(tgt, i, O[i], fav[i], now[i])
+                        rows.append((lots, float(fill), T[i], "target Rs %d reached" % cfg["final_total"])); n_open = 0; done = True; break
+                    if cfg["partial_total"] is not None and lots > 1 and lots * p_f[i] >= cfg["partial_total"]:
                         tgt = cfg["partial_total"] / lots
                         fill = O[i] if p_o[i] >= tgt else solve(tgt, i, O[i], fav[i], now[i])
                         rows.append((lots - 1, float(fill), T[i], "profit lock: Rs %d reached, %d lots booked" % (cfg["partial_total"], lots - 1)))
