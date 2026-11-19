@@ -1,0 +1,121 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#0f1720;--card:#16212d;--line:#263445;--ink:#eef2f6;--ink2:#a9b6c4;--acc:#5ea2ff;--bull:#33c46e;--bear:#f06a6a;--warn:#f2b04a}
+*{box-sizing:border-box}body{margin:0;background:#0b1118;font:15px/1.45 "IBM Plex Sans",system-ui,sans-serif;color:var(--ink)}
+.sheet{width:1200px;padding:44px 48px;background:var(--bg);display:grid;gap:22px}
+h1{font:800 44px/1.05 Archivo,sans-serif;margin:0;letter-spacing:-.01em}
+h2{font:700 20px Archivo,sans-serif;margin:0}
+.eb{font:600 12px/1 "IBM Plex Sans";letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.sub{color:var(--ink2);font-size:17px;max-width:900px}
+.row{display:grid;gap:16px}.c4{grid-template-columns:repeat(4,1fr)}.c3{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:1fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:8px;align-content:start}
+.n{width:30px;height:30px;border-radius:50%;background:var(--acc);color:#081120;display:grid;place-items:center;font:700 15px Archivo}
+.hd{display:flex;gap:10px;align-items:center}
+.k{color:var(--ink2);font-size:13px}.v{font:500 15px "IBM Plex Mono",monospace}
+.big{font:800 32px Archivo}
+.g{color:var(--bull)}.r{color:var(--bear)}.w{color:var(--warn)}
+.pill{display:inline-block;padding:4px 10px;border-radius:6px;font:600 12px "IBM Plex Sans";letter-spacing:.04em}
+.pb{background:rgba(51,196,110,.15);color:var(--bull)}.ps{background:rgba(240,106,106,.15);color:var(--bear)}.pn{background:#223042;color:var(--ink2)}
+table{border-collapse:collapse;width:100%}td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{color:var(--ink2);font-weight:600;font-size:12px}
+td.m{font-family:"IBM Plex Mono",monospace}
+.ladder{display:grid;gap:6px}
+.leg{display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:500 14px "IBM Plex Mono"}
+.foot{color:var(--ink2);font-size:12px}
+ul{margin:0;padding-left:18px;display:grid;gap:4px}
+</style></head><body>
+
+<div class="sheet" id="info">
+  <span class="eb">Nifty weekly options · intraday · hedged selling</span>
+  <h1>Nifty Trend Spread</h1>
+  <p class="sub" style="margin:0">Trade only when the weekly and daily candles agree. Sell a hedged spread in that direction on a 15-minute Supertrend + EMA + MACD signal, and be flat by 14:45.</p>
+
+  <div class="row c4">
+    <div class="card"><div class="hd"><span class="n">1</span><h2>Day filter</h2></div>
+      <table><tr><th>Week</th><th>Today</th><th>Action</th></tr>
+      <tr><td class="g">Green</td><td class="g">Green</td><td><span class="pill pb">BULLISH</span></td></tr>
+      <tr><td class="r">Red</td><td class="r">Red</td><td><span class="pill ps">BEARISH</span></td></tr>
+      <tr><td>Mixed</td><td>Mixed</td><td><span class="pill pn">NO TRADE</span></td></tr></table>
+      <span class="k">Green = price above the week’s / today’s opening price</span></div>
+    <div class="card"><div class="hd"><span class="n">2</span><h2>15-min trigger</h2></div>
+      <ul><li>Price above Supertrend (10, 3)</li><li>EMA 9 above EMA 21 and close above EMA 21</li><li>MACD (12, 26, 9) above signal</li><li>All agree with step 1</li><li>Signal 09:30–13:30 · 1 trade/day</li></ul>
+      <span class="k">Bearish = everything reversed</span></div>
+    <div class="card"><div class="hd"><span class="n">3</span><h2>Position</h2></div>
+      <span class="pill pb">BULLISH · bull put spread</span>
+      <div class="ladder"><div class="leg"><span>1 · BUY PE</span><span>ATM − 300</span></div><div class="leg"><span>2 · SELL PE</span><span>ATM</span></div></div>
+      <span class="pill ps">BEARISH · bear call spread</span>
+      <div class="ladder"><div class="leg"><span>1 · BUY CE</span><span>ATM + 300</span></div><div class="leg"><span>2 · SELL CE</span><span>ATM</span></div></div>
+      <span class="k">Nearest weekly expiry · 6 lots (390 qty)</span></div>
+    <div class="card"><div class="hd"><span class="n">4</span><h2>Exit</h2></div>
+      <div><span class="k">Stop-loss</span><div class="v r">120 Nifty points</div></div>
+      <div><span class="k">Target</span><div class="v">None, hold for time decay</div></div>
+      <div><span class="k">Time exit</span><div class="v w">14:45 (before MIS cut-off)</div></div>
+      <div><span class="k">Order</span><div class="v">Close sold leg first, then hedge</div></div></div>
+  </div>
+
+  <div class="row c4">
+    <div class="card"><span class="k">2025 – Nov 2026 · unseen test · 6 lots</span><span class="big g">+₹6.40 L</span><span class="k">310 trades · profit factor 1.43</span></div>
+    <div class="card"><span class="k">2022 – 2024 · used to build · 6 lots</span><span class="big g">+₹4.73 L</span><span class="k">481 trades · profit factor 1.20</span></div>
+    <div class="card"><span class="k">Every year 2022–2026</span><span class="big g">Positive</span><span class="k">after brokerage, STT, fees, GST, slippage</span></div>
+    <div class="card"><span class="k">Worst drawdown · 6 lots</span><span class="big r">−₹1.90 L</span><span class="k">avg stop-loss hit ≈ −₹17,900</span></div>
+  </div>
+  <p class="foot" style="margin:0">Backtest on Nifty 15-minute data, Jan 2022 – Nov 2026, with option legs priced from real NSE closing premiums. Intraday premiums are modelled, not recorded ticks. Margin for 6 lots is about ₹3.1 L, or about ₹5.1 L on expiry day. Past results don’t guarantee future returns. Not investment advice.</p>
+</div>
+
+<div class="sheet" id="setup" style="margin-top:30px">
+  <span class="eb">Setup cheat-sheet</span>
+  <h1 style="font-size:36px">Building it in an algo builder (AlgoRooms)</h1>
+  <div class="row c3">
+    <div class="card"><div class="hd"><span class="n">1</span><h2>Basic details</h2></div>
+      <table>
+      <tr><td>Strategy type</td><td class="m">Indicator based</td></tr>
+      <tr><td>Instrument</td><td class="m">NIFTY (index)</td></tr>
+      <tr><td>Candle interval</td><td class="m">15 min</td></tr>
+      <tr><td>Product</td><td class="m">MIS (intraday)</td></tr>
+      <tr><td>Entry time</td><td class="m">09:30 – 13:30</td></tr>
+      <tr><td>Square-off</td><td class="m">14:45</td></tr>
+      <tr><td>Max trades/day</td><td class="m">1</td></tr>
+      <tr><td>Days</td><td class="m">Mon – Fri (all)</td></tr></table></div>
+    <div class="card"><div class="hd"><span class="n">2</span><h2>Long entry (bullish)</h2></div>
+      <table>
+      <tr><td class="m">Close</td><td>&gt;</td><td class="m">Supertrend(10,3)</td></tr>
+      <tr><td class="m">EMA(9)</td><td>&gt;</td><td class="m">EMA(21)</td></tr>
+      <tr><td class="m">Close</td><td>&gt;</td><td class="m">EMA(21)</td></tr>
+      <tr><td class="m">MACD(12,26,9)</td><td>&gt;</td><td class="m">Signal</td></tr>
+      <tr><td class="m">Close</td><td>&gt;</td><td class="m">Day Open</td></tr>
+      <tr><td class="m">Close</td><td>&gt;</td><td class="m">Week Open</td></tr></table>
+      <span class="k">Join all with AND. If there’s no “Week Open”, use the 1-week candle’s Open on a higher timeframe.</span></div>
+    <div class="card"><div class="hd"><span class="n">3</span><h2>Short entry (bearish)</h2></div>
+      <table>
+      <tr><td class="m">Close</td><td>&lt;</td><td class="m">Supertrend(10,3)</td></tr>
+      <tr><td class="m">EMA(9)</td><td>&lt;</td><td class="m">EMA(21)</td></tr>
+      <tr><td class="m">Close</td><td>&lt;</td><td class="m">EMA(21)</td></tr>
+      <tr><td class="m">MACD(12,26,9)</td><td>&lt;</td><td class="m">Signal</td></tr>
+      <tr><td class="m">Close</td><td>&lt;</td><td class="m">Day Open</td></tr>
+      <tr><td class="m">Close</td><td>&lt;</td><td class="m">Week Open</td></tr></table>
+      <span class="k">Join all with AND.</span></div>
+  </div>
+  <div class="row c3">
+    <div class="card"><div class="hd"><span class="n">4</span><h2>Legs on long signal</h2></div>
+      <table><tr><th>Action</th><th>Type</th><th>Strike</th><th>Expiry</th><th>Lots</th></tr>
+      <tr><td class="g">BUY</td><td class="m">PE</td><td class="m">ATM-300 (OTM 6)</td><td class="m">Weekly</td><td class="m">6</td></tr>
+      <tr><td class="r">SELL</td><td class="m">PE</td><td class="m">ATM</td><td class="m">Weekly</td><td class="m">6</td></tr></table>
+      <span class="k">Turn on “execute buy legs first” if available.</span></div>
+    <div class="card"><div class="hd"><span class="n">5</span><h2>Legs on short signal</h2></div>
+      <table><tr><th>Action</th><th>Type</th><th>Strike</th><th>Expiry</th><th>Lots</th></tr>
+      <tr><td class="g">BUY</td><td class="m">CE</td><td class="m">ATM+300 (OTM 6)</td><td class="m">Weekly</td><td class="m">6</td></tr>
+      <tr><td class="r">SELL</td><td class="m">CE</td><td class="m">ATM</td><td class="m">Weekly</td><td class="m">6</td></tr></table>
+      <span class="k">Strike step 50 → 300 pts = 6 strikes away.</span></div>
+    <div class="card"><div class="hd"><span class="n">6</span><h2>Risk management</h2></div>
+      <table>
+      <tr><td>Stop-loss</td><td class="m">120 pts on underlying (NIFTY spot)</td></tr>
+      <tr><td>Target</td><td class="m">Off</td></tr>
+      <tr><td>Trailing SL</td><td class="m">Off</td></tr>
+      <tr><td>Exit on opposite signal</td><td class="m">Off</td></tr>
+      <tr><td>Re-entry</td><td class="m">Off</td></tr>
+      <tr><td>Order type</td><td class="m">Limit (with buffer)</td></tr></table>
+      <span class="k">If SL can only be set on premium: about ₹3,000 per lot loss on the combined position.</span></div>
+  </div>
+  <p class="foot" style="margin:0">Field names vary by platform version. Match by meaning. Backtest on the platform and paper-trade before going live.</p>
+</div>
+</body></html>
