@@ -1,0 +1,137 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef0f4;font:14px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif;color:#1d2433}
+.page{width:1680px;padding:24px;background:#f3f4f8;display:grid;gap:18px}
+.banner{background:#14213d;color:#fff;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.banner b{font-size:18px}.banner span{font-size:13px;opacity:.85}
+.grid{display:grid;gap:18px}
+.card{background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:18px 18px;display:grid;gap:12px;align-content:start}
+h3{margin:0;font-size:15px;font-weight:600}
+h2{margin:0;font-size:19px;font-weight:600}
+.lbl{font-size:12.5px;color:#5b6474}
+.in{border:1px solid #d7dbe4;border-radius:7px;padding:9px 12px;background:#fff;font-size:14px;display:flex;justify-content:space-between;align-items:center;min-height:38px}
+.in.dd::after{content:"⌄";color:#555}
+.chg{outline:3px solid #ffb703;outline-offset:1px;background:#fff8e1}
+.row{display:grid;gap:12px}
+.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}.r4{grid-template-columns:repeat(4,1fr)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid #d7dbe4;border-radius:6px;padding:7px 12px;font-size:13px;color:#555;background:#fff}
+.chip.on{border-color:#7fa8f5;background:#e9f0ff;color:#1d4ed8}
+.cb{display:flex;gap:8px;align-items:center}
+.box{width:15px;height:15px;border:1.5px solid #888;border-radius:3px;display:inline-block}
+.box.on{background:#2563eb;border-color:#2563eb;position:relative}
+.box.on::after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2px;top:-2px}
+.radio{width:15px;height:15px;border:1.5px solid #888;border-radius:50%;display:inline-block}
+.radio.on{border:5px solid #2563eb}
+.leg{border:1px solid #cfd9f2;border-radius:10px;padding:14px;display:grid;gap:12px}
+.leghd{display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:5px}
+.sell{background:#fde8e8;color:#c62828}.buy{background:#e6f6ec;color:#1b7f3b}
+.green{color:#1b8a3e;font-weight:600}.red{color:#c62828;font-weight:600}
+.pos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pos div{border:1px solid #d7dbe4;border-radius:7px;padding:9px;text-align:center;font-weight:600;color:#999}
+.pos .b.on{background:#e6f6ec;border-color:#2e9e57;color:#1b7f3b}
+.pos .s.on{background:#fde8e8;border-color:#d64545;color:#c62828}
+.note{background:#fff8e1;border:1px solid #ffd166;border-radius:8px;padding:10px 12px;font-size:13px}
+.note b{color:#9a5b00}
+.cond{display:grid;grid-template-columns:1.2fr 1fr 1.2fr;gap:12px;align-items:start}
+.sub{font-size:11.5px;color:#6b7280;margin-top:3px}
+.num{display:inline-flex;width:20px;height:20px;border-radius:50%;background:#ffb703;color:#000;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:6px}
+.btn{justify-self:end;background:#2563eb;color:#fff;border-radius:7px;padding:9px 16px;font-weight:600;font-size:13px}
+</style></head><body>
+
+<!-- ============ SCREEN 1 ============ -->
+<div class="page" id="s1">
+  <div class="banner"><b>Screen 1 of 3 · Strategy type, instrument, order type, legs</b><span>Yellow boxes = change from your current screen. Strategy: Nifty Trend Spread</span></div>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1.6fr">
+    <div class="grid">
+      <div class="card"><h3>Strategy Type</h3>
+        <div class="cb"><span class="box"></span>Option Trading-Time Based</div>
+        <div class="cb"><span class="box on"></span><b>Option Trading-Indicator Based</b></div>
+        <div class="cb"><span class="box"></span>Stocks &amp; Futures -Indicator Based</div></div>
+    </div>
+    <div class="card"><h3>Select Instruments</h3>
+      <div class="row r2"><div><div class="lbl">Underlying</div><div class="sub">Reference used for calculations</div></div><div class="chips"><span class="chip on">Spot</span><span class="chip">Future</span></div></div>
+      <div class="row r2"><div><div class="lbl">INSTRUMENT NAME</div><b>NIFTY 50</b></div><div><div class="lbl">LOT SIZE</div><b>65</b></div></div>
+      <div><div class="lbl">EXCHANGE</div><b>NSE</b></div>
+    </div>
+    <div class="card" style="grid-row:span 2"><div class="leghd"><h3>Strategy Legs</h3><span class="btn">+ Add Leg</span></div>
+      <div class="leg">
+        <div class="leghd"><b>Leg 1 <span class="tag sell">SELL · sold leg</span></b><span class="lbl">SELL · NIFTY 50 · Qty 390 · Strike ATM</span></div>
+        <div class="row r2"><div><div class="green">When Long Condition</div><div class="in dd">PE</div></div><div><div class="red">When Short Condition</div><div class="in dd">CE</div></div></div>
+        <div class="row r2"><div><div class="lbl">Qty (multiples of 65)</div><div class="in">390 &nbsp;<span class="lbl">= 6 lots</span></div></div><div><div class="lbl">Position</div><div class="pos"><div class="b">BUY</div><div class="s on">SELL</div></div></div></div>
+        <div class="row r3"><div><div class="lbl">Expiry</div><div class="in dd">WEEKLY</div></div><div><div class="lbl">Strike Criteria</div><div class="in dd">ATM pt</div></div><div><div class="lbl">Strike Type</div><div class="in dd">ATM</div></div></div>
+        <div class="row r3"><div><div class="lbl">SL Type</div><div class="in dd">SL%</div></div><div><div class="lbl">SL</div><div class="in">0 &nbsp;<span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="row r3"><div><div class="lbl">TP Type</div><div class="in dd">TP%</div></div><div><div class="lbl">TP</div><div class="in">0 &nbsp;<span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="chips"><span class="cb"><span class="box"></span>Pre Punch SL</span><span class="cb"><span class="box"></span>Trail SL</span></div>
+      </div>
+      <div class="leg">
+        <div class="leghd"><b>Leg 2 <span class="tag buy">BUY · hedge</span></b><span class="lbl">BUY · NIFTY 50 · Qty 390 · Strike ATM ± 300</span></div>
+        <div class="row r2"><div><div class="green">When Long Condition</div><div class="in dd">PE</div></div><div><div class="red">When Short Condition</div><div class="in dd">CE</div></div></div>
+        <div class="row r2"><div><div class="lbl">Qty (multiples of 65)</div><div class="in chg">390 &nbsp;<span class="lbl">← was 325, must equal Leg 1</span></div></div><div><div class="lbl">Position</div><div class="pos"><div class="b on">BUY</div><div class="s">SELL</div></div></div></div>
+        <div class="row r3"><div><div class="lbl">Expiry</div><div class="in dd">WEEKLY</div></div><div><div class="lbl">Strike Criteria</div><div class="in dd">ATM pt</div></div><div><div class="lbl">Strike Type</div><div class="in dd">OTM 300</div></div></div>
+        <div class="row r3"><div><div class="lbl">SL Type</div><div class="in dd">SL%</div></div><div><div class="lbl">SL</div><div class="in">0 &nbsp;<span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="row r3"><div><div class="lbl">TP Type</div><div class="in dd">TP%</div></div><div><div class="lbl">TP</div><div class="in">0 &nbsp;<span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="chips"><span class="cb"><span class="box"></span>Pre Punch SL</span><span class="cb"><span class="box"></span>Trail SL</span></div>
+      </div>
+      <div class="cb"><span class="box"></span>Add Signal Candle Condition (Optional) <span class="lbl">&nbsp;leave unticked</span></div>
+      <div class="note"><b>Why the legs work this way:</b> on a long (bullish) signal both legs become PE: sell ATM PE, buy the PE 300 pts lower (a bull put spread). On a short (bearish) signal both become CE: sell ATM CE, buy the CE 300 pts higher (a bear call spread). OTM 300 picks the correct side automatically. Leg SL and TP stay 0, because the stop-loss is set once in Risk Management (screen 3).</div>
+    </div>
+    <div class="card" style="grid-column:span 2"><h2>Order Type</h2>
+      <div class="chips"><span class="cb"><span class="radio on"></span>MIS</span><span class="cb"><span class="radio"></span>CNC</span><span class="cb"><span class="radio"></span>BTST</span></div>
+      <div class="row r2"><div><div class="lbl">Start Time</div><div class="in chg">09:30 AM <span class="lbl">← was 09:20</span></div></div><div><div class="lbl">Square Off</div><div class="in">02:45 PM</div></div></div>
+      <div><div class="lbl">Days (all, including expiry day)</div><div class="chips"><span class="chip on">MON</span><span class="chip on">TUE</span><span class="chip on">WED</span><span class="chip on">THU</span><span class="chip on">FRI</span></div></div>
+      <div class="row r2"><div><div class="lbl">Transaction Type</div><div class="chips"><span class="chip on">Both Side</span><span class="chip">Only Long</span><span class="chip">Only Short</span></div></div><div><div class="lbl">Chart Type</div><div class="chips"><span class="chip on">Candle</span><span class="chip">Heikin Ashi</span></div></div></div>
+      <div><div class="lbl">Interval</div><div class="chips"><span class="chip">1 min</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span><span class="chip on">15 min</span><span class="chip">30 min</span><span class="chip">1H</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2 ============ -->
+<div class="page" id="s2" style="margin-top:30px">
+  <div class="banner"><b>Screen 2 of 3 · Entry and exit conditions</b><span>Add every row below with “+ Add Condition Pair”. All rows are joined with AND.</span></div>
+  <div class="card">
+    <div class="green" style="font-size:15px">Long Entry · bullish (opens the bull put spread)</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>Close / Price</span></div><div class="sub">Candle close · Interval(0) = chart 15 min</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">SuperTrend</div><div class="sub">PERIOD(10) MULTIPLIER(3) Interval(0)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>EMA</span></div><div class="sub">PERIOD(9) · source Close · Interval(0)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(21) · source Close · Interval(0)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">3</span>Close / Price</span></div><div class="sub">Interval(0)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(21) · Interval(0)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">4</span>MACD Line</span></div><div class="sub">FAST(12) SLOW(26) SIGNAL(9) · Interval(0)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">MACD Signal</div><div class="sub">FAST(12) SLOW(26) SIGNAL(9) · Interval(0)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">5</span>Close / Price</span></div><div class="sub">Interval(0)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">Open (candle open)</div><div class="sub">Interval = <b>1 Day</b> → today’s open</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">6</span>Close / Price</span></div><div class="sub">Interval(0)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">Open (candle open)</div><div class="sub">Interval = <b>1 Week</b> → this week’s open</div></div></div>
+
+    <div class="red" style="font-size:15px;margin-top:10px">Short Entry · bearish (opens the bear call spread)</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>Close / Price</span></div></div><div class="in dd chg">Less Than</div><div><div class="in chg">SuperTrend</div><div class="sub">PERIOD(10) MULTIPLIER(3) Interval(0)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>EMA</span></div><div class="sub">PERIOD(9)</div></div><div class="in dd chg">Less Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(21)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">3</span>Close / Price</span></div></div><div class="in dd chg">Less Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(21)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">4</span>MACD Line</span></div><div class="sub">12, 26, 9</div></div><div class="in dd chg">Less Than</div><div><div class="in chg">MACD Signal</div><div class="sub">12, 26, 9</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">5</span>Close / Price</span></div></div><div class="in dd chg">Less Than</div><div><div class="in chg">Open (candle open)</div><div class="sub">Interval = <b>1 Day</b></div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">6</span>Close / Price</span></div></div><div class="in dd chg">Less Than</div><div><div class="in chg">Open (candle open)</div><div class="sub">Interval = <b>1 Week</b></div></div></div>
+    <span class="btn">+ Add Condition Pair</span>
+    <div class="cb"><span class="box chg"></span>Exit Conditions (Optional) &nbsp;<span class="lbl"><b>untick this.</b> No indicator exit; trades exit on the loss limit or at 14:45.</span></div>
+    <div class="note"><b>Fix from your screenshot:</b> “SuperTrend Crosses Above SuperTrend” compares Supertrend with itself, so it never fires. Use Close <i>Greater Than</i> SuperTrend instead. Use “Greater/Less Than”, not “Crosses”, for every row. The algo enters on the first 15-minute candle where all six are true, and Max Trade Cycle = 1 stops a second trade.<br><b>If 1 Day / 1 Week intervals aren’t offered</b> for rows 5–6, leave those rows out and set Transaction Type by hand each morning: Only Long when Nifty is above both this week’s and today’s open, Only Short when it is below both, and pause the strategy otherwise.</div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 3 ============ -->
+<div class="page" id="s3" style="margin-top:30px">
+  <div class="banner"><b>Screen 3 of 3 · Risk management and name</b><span>This replaces the 120-point stop-loss on Nifty spot</span></div>
+  <div class="card"><div style="display:flex;align-items:center;gap:8px"><h2>Risk Management</h2><span class="lbl">ⓘ</span></div>
+    <div class="row r4">
+      <div><div class="lbl">Exit When Over All Profit In Amount (INR)</div><div class="in">leave empty <span class="lbl">(no target)</span></div></div>
+      <div><div class="lbl">Exit When Over All Loss In Amount (INR)</div><div class="in chg"><b>18000</b> <span class="lbl">≈ 120-pt stop at 6 lots</span></div></div>
+      <div><div class="lbl">Max Trade Cycle</div><div class="in">1</div></div>
+      <div><div class="lbl">No Trade After</div><div class="in">01:30 PM</div></div>
+    </div>
+    <div class="lbl" style="font-weight:600;color:#1d2433">Profit Trailing</div>
+    <div class="row r4">
+      <div class="cb chg" style="padding:6px;border-radius:6px"><span class="radio on"></span><b>No Trailing</b> <span class="lbl">← was Trail Profit</span></div>
+      <div class="cb"><span class="radio"></span>Lock Fix Profit</div>
+      <div class="cb"><span class="radio"></span>Trail Profit</div>
+      <div class="cb"><span class="radio"></span>Lock and Trail</div>
+    </div>
+    <div class="note"><b>Why ₹18,000:</b> a 120-point move against the trade cost about ₹17,900 on average at 6 lots in the backtest. Scale it with lots: about ₹3,000 per lot (1 lot = 3000, 3 lots = 9000, 6 lots = 18000). No profit target and no trailing: the backtest held winners until the 14:45 square-off.</div>
+  </div>
+  <div class="card"><h2>Strategy Name</h2><div class="in chg">Nifty Trend Spread · 15m · 6 lots</div><span class="btn">Create</span></div>
+</div>
+</body></html>
