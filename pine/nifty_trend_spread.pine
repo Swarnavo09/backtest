@@ -1,0 +1,137 @@
+//@version=6
+// Nifty Trend Spread — signals for a hedged Nifty option-selling strategy
+// Chart: NSE:NIFTY, 15-minute candles.
+// Bullish  -> BULL PUT spread : BUY PE (ATM - hedge), SELL PE (ATM)
+// Bearish  -> BEAR CALL spread: BUY CE (ATM + hedge), SELL CE (ATM)
+// TradingView can't trade option spreads, so the Strategy Tester simulates
+// the position on the Nifty chart with a delta-adjusted quantity. Treat its
+// P&L as approximate; the option legs are printed on the chart and in alerts.
+strategy("Nifty Trend Spread", overlay = true, initial_capital = 700000,
+     default_qty_type = strategy.fixed, default_qty_value = 1,
+     process_orders_on_close = false, calc_on_every_tick = false)
+
+// ───────────── Inputs ─────────────
+grpF = "Day filter"
+useYesterday = input.bool(false, "Also require yesterday's candle to agree (fewer trades)", group = grpF)
+
+grpT = "15-minute trigger"
+stLen   = input.int(10, "Supertrend ATR length", group = grpT)
+stMult  = input.float(3.0, "Supertrend multiplier", step = 0.1, group = grpT)
+emaFLen = input.int(9, "EMA fast", group = grpT)
+emaSLen = input.int(21, "EMA slow", group = grpT)
+mFast   = input.int(12, "MACD fast", group = grpT)
+mSlow   = input.int(26, "MACD slow", group = grpT)
+mSig    = input.int(9, "MACD signal", group = grpT)
+
+grpS = "Session (IST)"
+startMin  = input.int(930, "First signal candle close (HHMM)", group = grpS)
+lastMin   = input.int(1330, "Last signal candle close (HHMM)", group = grpS)
+squareMin = input.int(1445, "Square-off (HHMM)", group = grpS)
+maxTrades = input.int(1, "Max trades per day", minval = 1, group = grpS)
+
+grpR = "Risk"
+slPts = input.float(120, "Stop-loss (Nifty points)", step = 5, group = grpR)
+
+grpP = "Position"
+lots       = input.int(6, "Lots", minval = 1, maxval = 6, group = grpP)
+lotSize    = input.int(65, "Lot size", group = grpP)
+hedgeDist  = input.int(300, "Hedge distance (points)", step = 50, group = grpP)
+strikeStep = input.int(50, "Strike step", group = grpP)
+spreadDelta = input.float(0.35, "Spread delta (for tester P&L only)", step = 0.05, group = grpP)
+
+// ───────────── Helpers ─────────────
+hhmmToMin(int hhmm) => int(hhmm / 100) * 60 + hhmm % 100
+closeMin = hour(time_close, "Asia/Kolkata") * 60 + minute(time_close, "Asia/Kolkata")
+inWindow = closeMin >= hhmmToMin(startMin) and closeMin <= hhmmToMin(lastMin)
+squareNow = closeMin >= hhmmToMin(squareMin)
+
+dom = dayofmonth(time, "Asia/Kolkata")
+newDay = dom != dom[1]
+var int tradesToday = 0
+if newDay
+    tradesToday := 0
+
+// ───────────── Day filter: week / today / yesterday candles ─────────────
+wOpen = request.security(syminfo.tickerid, "W", open, lookahead = barmerge.lookahead_on)
+dOpen = request.security(syminfo.tickerid, "D", open, lookahead = barmerge.lookahead_on)
+[pdO, pdC] = request.security(syminfo.tickerid, "D", [open[1], close[1]], lookahead = barmerge.lookahead_on)
+
+weekGreen = close > wOpen
+weekRed   = close < wOpen
+dayGreen  = close > dOpen
+dayRed    = close < dOpen
+yGreen    = pdC > pdO
+yRed      = pdC < pdO
+
+bullBias = weekGreen and dayGreen and (not useYesterday or yGreen)
+bearBias = weekRed and dayRed and (not useYesterday or yRed)
+
+// ───────────── Trigger ─────────────
+[st, stDir] = ta.supertrend(stMult, stLen)       // stDir < 0 = uptrend
+emaF = ta.ema(close, emaFLen)
+emaS = ta.ema(close, emaSLen)
+[macdLine, sigLine, _] = ta.macd(close, mFast, mSlow, mSig)
+
+bullAll = bullBias and stDir < 0 and emaF > emaS and close > emaS and macdLine > sigLine
+bearAll = bearBias and stDir > 0 and emaF < emaS and close < emaS and macdLine < sigLine
+
+flat = strategy.position_size == 0
+canTrade = flat and inWindow and tradesToday < maxTrades and barstate.isconfirmed
+bullSig = canTrade and bullAll and not bullAll[1]
+bearSig = canTrade and bearAll and not bearAll[1]
+
+// ───────────── Orders ─────────────
+atm = math.round(close / strikeStep) * strikeStep
+qty = math.max(1, math.round(lots * lotSize * spreadDelta))
+
+if bullSig
+    msg = str.format("NIFTY BULL PUT | BUY PE {0} | SELL PE {1} | {2} lots | SL spot {3}",
+         atm - hedgeDist, atm, lots, close - slPts)
+    strategy.entry("BullPut", strategy.long, qty = qty, alert_message = msg)
+    alert(msg, alert.freq_once_per_bar_close)
+    label.new(bar_index, low, "BULL PUT\nBUY PE " + str.tostring(atm - hedgeDist) + "\nSELL PE " + str.tostring(atm) + "\n" + str.tostring(lots) + " lots",
+         style = label.style_label_up, color = color.new(color.green, 10), textcolor = color.white, size = size.small)
+    tradesToday += 1
+
+if bearSig
+    msg = str.format("NIFTY BEAR CALL | BUY CE {0} | SELL CE {1} | {2} lots | SL spot {3}",
+         atm + hedgeDist, atm, lots, close + slPts)
+    strategy.entry("BearCall", strategy.short, qty = qty, alert_message = msg)
+    alert(msg, alert.freq_once_per_bar_close)
+    label.new(bar_index, high, "BEAR CALL\nBUY CE " + str.tostring(atm + hedgeDist) + "\nSELL CE " + str.tostring(atm) + "\n" + str.tostring(lots) + " lots",
+         style = label.style_label_down, color = color.new(color.red, 10), textcolor = color.white, size = size.small)
+    tradesToday += 1
+
+// Stop-loss on Nifty spot points, no target (hold for time decay)
+if strategy.position_size > 0
+    strategy.exit("SL-L", "BullPut", stop = strategy.position_avg_price - slPts,
+         alert_message = "NIFTY BULL PUT stop-loss: exit both legs (buy back sold PE first)")
+if strategy.position_size < 0
+    strategy.exit("SL-S", "BearCall", stop = strategy.position_avg_price + slPts,
+         alert_message = "NIFTY BEAR CALL stop-loss: exit both legs (buy back sold CE first)")
+
+// Time exit 14:45 (order fills at the open of the 14:45 candle)
+if squareNow and not flat
+    strategy.close_all(comment = "14:45 square-off", alert_message = "NIFTY 14:45 square-off: exit both legs")
+    alert("NIFTY 14:45 square-off: exit both legs", alert.freq_once_per_bar_close)
+
+// ───────────── Visuals ─────────────
+plot(emaF, "EMA fast", color = color.new(color.blue, 0), linewidth = 1)
+plot(emaS, "EMA slow", color = color.new(color.orange, 0), linewidth = 1)
+plot(st, "Supertrend", color = stDir < 0 ? color.green : color.red, linewidth = 2, style = plot.style_linebr)
+plot(strategy.position_size > 0 ? strategy.position_avg_price - slPts : strategy.position_size < 0 ? strategy.position_avg_price + slPts : na,
+     "Stop-loss", color = color.red, style = plot.style_linebr, linewidth = 1)
+bgcolor(bullBias ? color.new(color.green, 92) : bearBias ? color.new(color.red, 92) : na, title = "Day bias")
+
+var table t = table.new(position.top_right, 2, 5, bgcolor = color.new(color.black, 20), border_width = 1)
+if barstate.islast
+    table.cell(t, 0, 0, "Week", text_color = color.white)
+    table.cell(t, 1, 0, weekGreen ? "Green" : "Red", text_color = weekGreen ? color.lime : color.red)
+    table.cell(t, 0, 1, "Today", text_color = color.white)
+    table.cell(t, 1, 1, dayGreen ? "Green" : "Red", text_color = dayGreen ? color.lime : color.red)
+    table.cell(t, 0, 2, "Bias", text_color = color.white)
+    table.cell(t, 1, 2, bullBias ? "BULLISH" : bearBias ? "BEARISH" : "NO TRADE", text_color = bullBias ? color.lime : bearBias ? color.red : color.gray)
+    table.cell(t, 0, 3, "ATM", text_color = color.white)
+    table.cell(t, 1, 3, str.tostring(atm), text_color = color.white)
+    table.cell(t, 0, 4, "Trades today", text_color = color.white)
+    table.cell(t, 1, 4, str.tostring(tradesToday) + " / " + str.tostring(maxTrades), text_color = color.white)
