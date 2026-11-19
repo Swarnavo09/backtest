@@ -392,6 +392,11 @@ def bias_columns(df: pd.DataFrame) -> pd.DataFrame:
     w = df.groupby(wk).agg(o=("Open", "first"), c=("Close", "last"))
     w_prev = np.sign(w.c - w.o).shift(1)
     out["w_prev"] = wk.map(w_prev).values
+    # "VWAP" for the index: Nifty spot has no volume, so every candle gets equal weight
+    # (running average of typical price since 09:15), as charting platforms do for indices.
+    tp = (df.High + df.Low + df.Close) / 3
+    vw = tp.groupby(day).cumsum() / tp.groupby(day).cumcount().add(1)
+    out["vwap"] = np.sign(df.Close - vw)
     return out
 
 
@@ -405,6 +410,8 @@ BIAS = {
     "prev": ("w_prev", "d_prev"),     # last completed week AND yesterday
     "wprev_dlive": ("w_prev", "d_live"),
     "wlive_dlive_prevday": ("w_live", "d_live", "d_prev"),
+    "vwap": ("vwap",),                 # price above / below today's VWAP only
+    "w_vwap": ("w_live", "vwap"),      # this week's candle + VWAP
 }
 
 
