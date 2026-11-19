@@ -7,6 +7,7 @@ pip install pandas openpyxl
 python blaze_backtest.py                          # 2025-01-01 .. today, Rs 1,00,000 margin per 1:2:1 set
 python blaze_backtest.py --margin-per-set 150000  # use your broker's actual basket margin
 python blaze_backtest.py --fill-at-levels         # book target/SL exactly at +1.5% / -1%
+python blaze_backtest.py --mode video             # video filter: credit <= 0.6% or debit <= 0.7%
 ```
 
 The script downloads the free NSE F&O bhavcopies (end-of-day data) into `data/fo/` and writes the results to `results/`:
@@ -16,7 +17,7 @@ The script downloads the free NSE F&O bhavcopies (end-of-day data) into `data/fo
 |---|---|
 | Entry Monday 3:16 / 3:35 PM | Monday closing price (first trading day of the week if Monday is a holiday) |
 | Expiry | First weekly expiry after that week's Friday (skips the nearest expiry) |
-| Strikes | ATM − 200, rolled lower in 50-pt steps until net credit ≤ 0.6 % of margin; always a net credit, otherwise the week is skipped (`--allow-debit` allows a debit ≤ 0.7 %) |
+| Strikes | ATM − 200, rolled lower in 50-pt steps. `--mode strict` (default): closest setup with a net credit of 0.6 % of margin or less, otherwise the week is skipped. `--mode video`: first setup between a 0.7 % debit and a 0.6 % credit |
 | Target / SL | +1.5 % / −1 % of margin, checked on each day's closing prices |
 | Time exit | Friday close (or the last trading day of the week) |
 | Charges | ₹20/order, STT 0.1 % sell side, NSE txn 0.03503 %, SEBI, stamp, 18 % GST (`--no-costs` turns them off) |

@@ -12,10 +12,12 @@ Rules implemented
   * Expiry: first NIFTY weekly expiry AFTER that week's Friday
     (Tue-expiry era: skip tomorrow's Tuesday, use next week's Tuesday;
      Thu-expiry era, Jan-Aug 2025: skip this Thursday, use next Thursday).
-  * Strike search: start at offset 200 below ATM, roll the whole structure
-    lower in 50-pt steps until net credit <= 0.6 % of margin. Always a net
-    credit; a week with no qualifying credit is skipped (or, with
-    --allow-debit, a debit up to 0.7 % of margin is accepted at offset 200).
+  * Strike search (--mode):
+      strict (default): start 200 pts below ATM and roll the whole structure
+        lower in 50-pt steps; take the closest offset whose net CREDIT is
+        > 0 and <= 0.6 % of margin. Weeks with no such setup are skipped.
+      video: same roll, but take the first offset whose net premium lies
+        between a 0.7 % debit and a 0.6 % credit (the video's filter).
   * Target +1.5 % of margin, stop -1 % of margin, otherwise exit Friday
     (last trading day of the week if Friday is a holiday).
   * No adjustments.
@@ -151,12 +153,16 @@ def price_of(chain: pd.DataFrame, strike: float) -> float | None:
 
 
 def select_strikes(chain: pd.DataFrame, spot: float, lot: int, margin_set: float,
-                   allow_debit: bool):
-    """Return (offset, K1, K2, K3, p1, p2, p3, credit_pts) or None."""
+                   mode: str):
+    """Return (offset, K1, K2, K3, p1, p2, p3, credit_pts) or None.
+
+    strict : closest offset >= 200 whose net CREDIT is > 0 and <= 0.6 % of margin
+    video  : first offset (from 200, rolling lower) whose net premium lies
+             between a 0.7 % debit and a 0.6 % credit
+    """
     atm = round(spot / STRIKE_STEP) * STRIKE_STEP
     cap = 0.006 * margin_set
     debit_cap = 0.007 * margin_set
-    first = None
     for off in range(BASE_OFFSET, MAX_OFFSET + 1, STRIKE_STEP):
         k1 = atm - off
         k2 = k1 - WING
@@ -165,22 +171,15 @@ def select_strikes(chain: pd.DataFrame, spot: float, lot: int, margin_set: float
         if None in p:
             continue
         credit = 2 * p[1] - p[0] - p[2]           # points per 1:2:1 set
-        cand = (off, k1, k2, k3, *p, credit)
-        if first is None:
-            first = cand
-        if 0 < credit * lot <= cap:
-            return cand
-        if credit <= 0:
-            # rolled too far: closer strikes were > cap, these are a debit
-            break
-    if allow_debit and first is not None and first[0] == BASE_OFFSET:
-        if -debit_cap <= first[-1] * lot <= 0:
-            return first
+        rs = credit * lot
+        ok = (0 < rs <= cap) if mode == "strict" else (-debit_cap <= rs <= cap)
+        if ok:
+            return (off, k1, k2, k3, *p, credit)
     return None
 
 
 def run(days: dict[dt.date, pd.DataFrame], margin_set: float, lots: int,
-        allow_debit: bool, fill_at_levels: bool, brokerage: float, costs: bool):
+        mode: str, fill_at_levels: bool, brokerage: float, costs: bool):
     tdays = sorted(days)
     weeks: dict[tuple, list[dt.date]] = {}
     for d in tdays:
@@ -201,10 +200,10 @@ def run(days: dict[dt.date, pd.DataFrame], margin_set: float, lots: int,
         spot = float(chain["spot"].iloc[0])
         lot = int(chain["lot"].iloc[0])
         margin = margin_set * lots
-        sel = select_strikes(chain, spot, lot, margin_set, allow_debit)
+        sel = select_strikes(chain, spot, lot, margin_set, mode)
         if sel is None:
             rows.append({**base, "expiry": expiry, "spot": spot, "lot_size": lot,
-                         "status": "SKIP", "reason": "no net-credit setup <= 0.6%"})
+                         "status": "SKIP", "reason": "no setup meets the credit/debit filter"})
             continue
         off, k1, k2, k3, p1, p2, p3, credit = sel
         q1, q2, q3 = 1 * lots * lot, 2 * lots * lot, 1 * lots * lot
@@ -298,8 +297,8 @@ def main():
     ap.add_argument("--lots", type=int, default=2, help="lot multiplier (2 => 2/4/2 lots)")
     ap.add_argument("--margin-per-set", type=float, default=100000,
                     help="margin for ONE 1:2:1 set in Rs (default 100000)")
-    ap.add_argument("--allow-debit", action="store_true",
-                    help="if no credit setup exists, accept a debit <= 0.7%% at offset 200")
+    ap.add_argument("--mode", choices=["strict", "video"], default="strict",
+                    help="strict: always net credit <= 0.6%%; video: credit <= 0.6%% or debit <= 0.7%%")
     ap.add_argument("--fill-at-levels", action="store_true",
                     help="book target/stop at exactly +1.5%%/-1%% instead of at the close")
     ap.add_argument("--brokerage", type=float, default=20.0, help="Rs per order (leg)")
@@ -315,7 +314,7 @@ def main():
     if not days:
         sys.exit("No data loaded. Check internet access to nsearchives.nseindia.com.")
 
-    trades = run(days, a.margin_per_set, a.lots, a.allow_debit, a.fill_at_levels,
+    trades = run(days, a.margin_per_set, a.lots, a.mode, a.fill_at_levels,
                  a.brokerage, not a.no_costs)
     monthly, yearly = summarise(trades, "month"), summarise(trades, "year")
 
