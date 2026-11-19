@@ -1,0 +1,7 @@
+rule,dev_n,dev_pf,dev_per_yr,test_n,test_win,test_pf,test_net_2y
+adx>30,103,1.45,14796,40,50.0,1.03,2341
+none,326,0.98,-2072,120,38.3,0.83,-56166
+"DI agrees (+DI>-DI long, -DI>+DI short)",307,1.0,452,111,39.6,0.94,-18759
+ADX(14) > ADX(28),297,0.97,-3537,112,41.1,0.91,-25895
+ADX > both DI lines,65,0.49,-15014,29,34.5,0.92,-6084
+DI agrees AND ADX > weaker DI,247,0.94,-5781,100,39.0,0.87,-35829
