@@ -170,9 +170,9 @@ def select_strikes(chain: pd.DataFrame, spot: float, lot: int, margin_set: float
         p = [price_of(chain, k) for k in (k1, k2, k3)]
         if None in p:
             continue
-        credit = 2 * p[1] - p[0] - p[2]           # points per 1:2:1 set
+        credit = round(2 * p[1] - p[0] - p[2], 2)  # points per 1:2:1 set
         rs = credit * lot
-        ok = (0 < rs <= cap) if mode == "strict" else (-debit_cap <= rs <= cap)
+        ok = (credit >= 0.05 and rs <= cap) if mode == "strict" else (-debit_cap <= rs <= cap)
         if ok:
             return (off, k1, k2, k3, *p, credit)
     return None
@@ -268,8 +268,8 @@ def summarise(trades: pd.DataFrame, key: str) -> pd.DataFrame:
         "targets": g["status"].apply(lambda s: (s == "TARGET").sum()),
         "stops": g["status"].apply(lambda s: (s == "STOPLOSS").sum()),
         "time_exits": g["status"].apply(lambda s: s.str.contains("EXIT").sum()),
-        "gross_profit": g["net_pnl"].apply(lambda s: s[s > 0].sum()),
-        "gross_loss": g["net_pnl"].apply(lambda s: s[s <= 0].sum()),
+        "profit_winning_weeks": g["net_pnl"].apply(lambda s: s[s > 0].sum()),
+        "loss_losing_weeks": g["net_pnl"].apply(lambda s: s[s <= 0].sum()),
         "charges": g["charges"].sum(),
         "net_pnl": g["net_pnl"].sum(),
     })
