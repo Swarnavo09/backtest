@@ -159,7 +159,8 @@ class Params:
     max_trades: int = 2
     slip: float = 0.5            # slippage per leg per side, in points
     lots: int = 1                # lots per leg (brokerage is per order, so it does not scale)
-    dte0: bool = False           # allow trading the expiring weekly on expiry day (real-IV pricing only)
+    dte0: bool = False
+    fresh: bool = True           # True: enter only when conditions JUST turned true; False: first candle where all are true (AlgoRooms-style)           # allow trading the expiring weekly on expiry day (real-IV pricing only)
     start: time = time(9, 30)    # earliest signal-candle close
     last_entry: time = time(14, 30)
     squareoff: time = time(15, 15)
@@ -265,7 +266,10 @@ def backtest(df: pd.DataFrame, vix: pd.Series, p: Params) -> pd.DataFrame:
             continue
         if not (p.start <= close_times[i] <= p.last_entry):
             continue
-        side = 1 if (bull[i] and not bull[i - 1]) else (-1 if (bear[i] and not bear[i - 1]) else 0)
+        if p.fresh:
+            side = 1 if (bull[i] and not bull[i - 1]) else (-1 if (bear[i] and not bear[i - 1]) else 0)
+        else:
+            side = 1 if bull[i] else (-1 if bear[i] else 0)
         if side == 0 or dates[i + 1] != dates[i]:
             continue
         day = pd.Timestamp(dates[i])
