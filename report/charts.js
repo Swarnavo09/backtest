@@ -79,10 +79,10 @@ function lineChart(host, series, { height = 300, oosLabel = null, yFmt = fmtR } 
   hit.addEventListener("pointerleave", () => { tip.hide(); cross.setAttribute("visibility", "hidden"); });
 }
 
-/* Horizontal grouped bars for gross / costs / net per timeframe. */
+/* Horizontal bars for gross / costs / net per timeframe; value labels in a right-hand column. */
 function moneyBars(host, rows) {
   host.classList.add("chart");
-  const W = 760, rowH = 74, m = { l: 92, r: 90, t: 8, b: 26 };
+  const W = 760, rowH = 92, m = { l: 16, r: 200, t: 8, b: 26 };
   const H = m.t + m.b + rows.length * rowH;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, host);
   const vals = rows.flatMap((r) => [r.gross, -r.costs, r.net, 0]);
@@ -94,15 +94,16 @@ function moneyBars(host, rows) {
   }
   const tip = tooltip(host);
   rows.forEach((r, k) => {
-    const y0 = m.t + k * rowH + 6;
-    el("text", { x: m.l - 10, y: y0 + 32, class: "lab", "text-anchor": "end" }, svg).textContent = r.label;
+    const y0 = m.t + k * rowH;
+    el("text", { x: m.l, y: y0 + 14, class: "lab" }, svg).textContent = `${r.label} · ${r.trades} trades`;
     [["Before costs", r.gross, "b-gross"], ["Costs", -r.costs, "b-cost"], ["After costs", r.net, "b-net"]].forEach(([nm, v, cls], j) => {
-      const y = y0 + j * 21, x0 = X(0), x1 = X(v);
+      const y = y0 + 22 + j * 21, x0 = X(0), x1 = X(v);
       const rect = el("rect", { x: Math.min(x0, x1), y, width: Math.max(Math.abs(x1 - x0), 1), height: 17, rx: 3, class: cls }, svg);
-      el("text", { x: v >= 0 ? x1 + 6 : x1 - 6, y: y + 13, class: "val", "text-anchor": v >= 0 ? "start" : "end" }, svg).textContent = `${nm} ${fmtR(v)}`;
+      el("text", { x: W - m.r + 14, y: y + 13, class: "val" }, svg).textContent = nm;
+      el("text", { x: W - 4, y: y + 13, class: "val", "text-anchor": "end" }, svg).textContent = fmtR(v);
       rect.addEventListener("pointermove", (ev) => {
         const b = svg.getBoundingClientRect();
-        tip.show(`<div class="tip-h">${r.label}</div><div class="tip-row">${nm}<b>${fmtR(v)}</b></div><div class="tip-row">Trades<b>${r.trades}</b></div>`, ev.clientX - b.left, ev.clientY - b.top);
+        tip.show(`<div class="tip-h">${r.label}</div><div class="tip-row">${nm}<b>${fmtR(v)}</b></div><div class="tip-row">Per trade<b>${fmtR(v / r.trades)}</b></div>`, ev.clientX - b.left, ev.clientY - b.top);
       });
       rect.addEventListener("pointerleave", () => tip.hide());
     });
