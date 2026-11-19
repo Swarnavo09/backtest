@@ -138,6 +138,7 @@ class Params:
     htf: bool = False            # only trade in the direction of the 1-hour Supertrend
     max_trades: int = 2
     slip: float = 0.5            # slippage per leg per side, in points
+    lots: int = 1                # lots per leg (brokerage is per order, so it does not scale)
     start: time = time(9, 30)    # earliest signal-candle close
     last_entry: time = time(14, 30)
     squareoff: time = time(15, 15)
@@ -302,10 +303,12 @@ def _close(pos, exit_px, exit_ts, reason, p: Params):
     s_out, l_out = spread_value(exit_px, exit_ts, pos["legs"], pos["expiry"], pos["iv"])
     credit = pos["short_in"] - pos["long_in"]
     debit = s_out - l_out
-    gross = (credit - debit) * LOT_SIZE
+    gross1 = (credit - debit) * LOT_SIZE          # per lot
     sell_prem = pos["short_in"] + l_out          # premium we SOLD (entry short, exit hedge)
     buy_prem = pos["long_in"] + s_out            # premium we BOUGHT (entry hedge, exit short)
-    cost = charges(sell_prem, buy_prem) + 4 * p.slip * LOT_SIZE
+    cost1 = charges(sell_prem, buy_prem, 1) + 4 * p.slip * LOT_SIZE
+    gross = gross1 * p.lots
+    cost = charges(sell_prem, buy_prem, p.lots) + 4 * p.slip * LOT_SIZE * p.lots
     return dict(
         signal_ts=pos["signal_ts"], entry_ts=pos["entry_ts"], exit_ts=exit_ts,
         side="BULL PUT" if pos["side"] == 1 else "BEAR CALL",
@@ -314,6 +317,7 @@ def _close(pos, exit_px, exit_ts, reason, p: Params):
         spot_pts=round((exit_px - pos["entry"]) * pos["side"], 2),
         credit=round(credit, 2), close_cost=round(debit, 2),
         gross=round(gross, 2), costs=round(cost, 2), net=round(gross - cost, 2),
+        net_1lot=round(gross1 - cost1, 2), costs_1lot=round(cost1, 2), lots=p.lots,
         reason=reason, iv=pos["iv"],
         mfe=round((pos["best"] - pos["entry"]) * pos["side"], 2),
         mae=round((pos.get("worst", pos["entry"]) - pos["entry"]) * pos["side"], 2),

@@ -150,6 +150,13 @@ def main() -> None:
                 }
         out[stage] = st
 
+    ys = RES / "year_summary.json"
+    if ys.exists():
+        out["year"] = json.loads(ys.read_text())
+        ls = RES / "year_lots_slippage.json"
+        if ls.exists():
+            out["year"]["lots_slip"] = json.loads(ls.read_text())
+
     REP.mkdir(exist_ok=True)
     data = json.dumps(clean(out), separators=(",", ":"), default=str)
     (REP / "data.json").write_text(data)

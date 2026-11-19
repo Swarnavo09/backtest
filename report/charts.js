@@ -243,3 +243,41 @@ function payoffChart(host, { side, spot, short, hedge, credit, lot }) {
   });
   hit.addEventListener("pointerleave", () => tip.hide());
 }
+
+/* Monthly grouped columns: one column per series per month, around a zero line. */
+function monthBars(host, rows, series) {
+  host.innerHTML = ""; host.classList.add("chart");
+  const W = 760, H = 300, m = { l: 70, r: 12, t: 14, b: 34 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, host);
+  const vals = rows.flatMap((r) => series.map((s) => r[s.key])).concat([0]);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+  const Y = (v) => m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b);
+  for (const t of niceTicks(lo, hi, 5)) {
+    el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: t === 0 ? "axis" : "grid" }, svg);
+    el("text", { x: m.l - 8, y: Y(t) + 4, class: "tick", "text-anchor": "end" }, svg).textContent = fmtR(t);
+  }
+  const gw = (W - m.l - m.r) / rows.length, bw = Math.min(16, (gw - 8) / series.length - 2);
+  const tip = tooltip(host);
+  rows.forEach((r, i) => {
+    const cx = m.l + gw * (i + 0.5);
+    const d = new Date(r.month + "-01");
+    el("text", { x: cx, y: H - 18, class: "tick", "text-anchor": "middle" }, svg).textContent = d.toLocaleDateString("en-GB", { month: "short" });
+    if (i === 0 || d.getMonth() === 0) el("text", { x: cx, y: H - 4, class: "tick", "text-anchor": "middle" }, svg).textContent = d.getFullYear();
+    series.forEach((s, j) => {
+      const v = r[s.key];
+      if (v == null) return;
+      const x = cx + (j - (series.length - 1) / 2) * (bw + 2) - bw / 2;
+      const y0 = Y(0), y1 = Y(v);
+      el("rect", { x, y: Math.min(y0, y1), width: bw, height: Math.max(Math.abs(y1 - y0), 1), rx: 2, class: `col ${s.cls}` }, svg);
+    });
+    const hit = el("rect", { x: cx - gw / 2, y: m.t, width: gw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointermove", (ev) => {
+      const b = svg.getBoundingClientRect();
+      tip.show(`<div class="tip-h">${d.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</div>` +
+        series.map((s) => `<div class="tip-row"><span class="sw ${s.cls}"></span>${s.name}<b>${r[s.key] == null ? "–" : fmtR(r[s.key])}</b></div>`).join("") +
+        (r.trades != null ? `<div class="tip-row">Trades<b>${r.trades}</b></div>` : ""), ev.clientX - b.left, ev.clientY - b.top);
+    });
+    hit.addEventListener("pointerleave", () => tip.hide());
+  });
+}

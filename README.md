@@ -32,3 +32,24 @@ python build_report.py    # report/index.html
 
 Option prices are modelled (Black-Scholes with prior-day India VIX), not real traded
 premiums. Research only, not investment advice.
+
+## One-year test at 1 vs 4 lots (MIS: entries until 14:00, exit 14:45)
+
+```bash
+python fetch_upstox.py 2025-11-01 2026-11-18   # Upstox public candles, no key needed
+python run_year.py                              # -> results/year_*.csv, year_summary.json
+python build_report.py
+```
+
+258 sessions (3 Nov 2025 - 18 Nov 2026), 1,152 combinations at 4 lots:
+
+| View | 1 lot | 4 lots |
+|---|---|---|
+| Fixed 10-min setup from the first test | -Rs 19,992 | -Rs 32,389 |
+| Walk-forward (re-pick monthly from last 3 months) | -Rs 19,915 | -Rs 27,557 |
+| Best combination in hindsight (10m, hedge 300, SL 40, trail) | -Rs 5,466 | +Rs 29,112 |
+
+4 lots cuts cost per lot per trade from about Rs 263 to Rs 192 (only brokerage is
+fixed per order), but the setup earns about Rs 144 per lot per trade before costs.
+Slippage is the deciding factor: at 0.25 pt per leg instead of 0.5 pt, the fixed setup
+at 4 lots makes +Rs 11,291 for the year.

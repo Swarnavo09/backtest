@@ -141,6 +141,10 @@ td.r, th.r { white-space: nowrap; text-align: right; font-family: var(--f-mono);
 .chart .h-up { fill: var(--pos2); } .chart .h-dn { fill: var(--neg2); }
 .chart .macd-l { fill: none; stroke: var(--s5); stroke-width: 1.4; }
 .chart .macd-s { fill: none; stroke: var(--s10); stroke-width: 1.4; }
+.chart .col.c1 { fill: var(--s5); } .chart .col.c4 { fill: var(--s10); }
+.sw.c1 { background: var(--s5); } .sw.c4 { background: var(--s10); }
+.answer { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 18px 20px; display: grid; gap: 10px; }
+.answer ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
 .chart .pay-line { fill: none; stroke: var(--accent); stroke-width: 2; }
 .chart .pay-area { fill: var(--accent-soft); }
 .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); min-width: 160px; z-index: 2; }
@@ -192,22 +196,45 @@ pre { font: 12.5px/1.5 var(--f-mono); background: var(--surface); border: 1px so
 <header>
   <span class="eyebrow">Nifty 50 · weekly options · intraday · hedged selling</span>
   <h1>Nifty Trend Spread</h1>
-  <p class="lede">Sell the ATM option in the direction of the trend and buy a cheaper option further out as the hedge. A bullish signal opens a <b>bull put spread</b>; a bearish signal opens a <b>bear call spread</b>. Signals come from EMA, MACD and Supertrend on the Nifty chart. This page covers the rules, the risk plan at 1:2, real backtest results on 5, 10 and 15 minute candles, how to set it up in an algo builder, and the margin for one lot.</p>
+  <p class="lede">Sell the ATM option in the direction of the trend and buy a cheaper option further out as the hedge. A bullish signal opens a <b>bull put spread</b>; a bearish signal opens a <b>bear call spread</b>. Signals come from EMA, MACD and Supertrend on the Nifty chart. This page covers the rules, the risk plan at 1:2, real backtest results on 5, 10 and 15 minute candles (a one-year month-by-month test at 1 vs 4 lots first, then the original 59-day test), how to set it up in an algo builder, and the margin.</p>
   <nav class="toc" aria-label="Sections">
-    <a href="#verdict">Result</a><a href="#how">How it works</a><a href="#legs">The two spreads</a><a href="#rules">Entry rules</a><a href="#manage">SL, trail and booking</a><a href="#results">Backtest</a><a href="#example">Real trade</a><a href="#setup">Algo setup</a><a href="#margin">Margin</a><a href="#limits">Limits</a>
+    <a href="#year">1 year · 4 lots</a><a href="#verdict">59-day test</a><a href="#how">How it works</a><a href="#legs">The two spreads</a><a href="#rules">Entry rules</a><a href="#manage">SL, trail and booking</a><a href="#results">Backtest</a><a href="#example">Real trade</a><a href="#setup">Algo setup</a><a href="#margin">Margin</a><a href="#limits">Limits</a>
   </nav>
   <div class="verdict" id="verdict">
-    <span class="pill warn">Backtest verdict</span>
+    <span class="pill warn">First test · 59 days · 1 lot</span>
     <h2 id="v-title">Loading results…</h2>
     <ul id="v-list"></ul>
   </div>
   <div class="stats" id="hero-stats"></div>
 </header>
 
+<section id="year">
+  <span class="eyebrow">Latest test · one year · MIS exit by 14:45</span>
+  <h2>Is it profitable with 4 lots? Month by month for the last year</h2>
+  <p id="y-intro"></p>
+  <div class="answer" id="y-answer"><span class="pill acc">Short answer</span><h3 id="y-title"></h3><ul id="y-list"></ul></div>
+  <div class="stats" id="y-stats"></div>
+  <figure class="fig">
+    <h3>Monthly net P&amp;L after all costs</h3>
+    <div class="tabs" role="tablist" id="y-tabs"></div>
+    <p class="cap" id="y-tabnote"></p>
+    <div class="legend"><span><span class="sw c1"></span>1 lot (65 qty)</span><span><span class="sw c4"></span>4 lots (260 qty)</span></div>
+    <div id="y-chart"></div>
+    <div class="tbl" style="border:0"><table><thead id="y-thead"></thead><tbody id="y-table"></tbody><tfoot id="y-foot"></tfoot></table></div>
+  </figure>
+  <figure class="fig">
+    <h3>Lots vs slippage: what actually decides profit (full year)</h3>
+    <div class="tabs" role="tablist" id="ls-tabs"></div>
+    <div class="tbl" style="border:0"><table><thead><tr><th>Lots</th><th class="r">Cost / lot / trade<br>at 0.5 pt slip</th><th class="r">0 pt slip</th><th class="r">0.25 pt</th><th class="r">0.5 pt</th><th class="r">1 pt</th></tr></thead><tbody id="ls-table"></tbody></table></div>
+    <figcaption id="ls-cap"></figcaption>
+  </figure>
+  <div class="note" id="y-note"></div>
+</section>
+
 <section id="how">
   <span class="eyebrow">Overview</span>
   <h2>How the strategy works</h2>
-  <p>Every candle close runs the same checks. A trade opens only when all three indicators agree, and it always goes in with the hedge leg first. Each trade has a stop-loss and a target fixed at 1:2, a trailing rule, and a hard exit at 15:15.</p>
+  <p>Every candle close runs the same checks. A trade opens only when all three indicators agree, and it always goes in with the hedge leg first. Each trade has a stop-loss and a target fixed at 1:2, a trailing rule, and a hard exit at 14:45, before the broker’s MIS auto square-off.</p>
   <figure class="fig">
     <div class="scroll">
     <svg viewBox="0 0 760 720" role="img" aria-label="Flowchart of the strategy">
@@ -217,7 +244,7 @@ pre { font: 12.5px/1.5 var(--f-mono); background: var(--surface); border: 1px so
       <text x="380" y="50" text-anchor="middle" class="d-s" id="d-tf">5 / 10 / 15 minute</text>
       <path d="M380,58 V86" class="d-arrow" marker-end="url(#ah)"/>
       <rect x="200" y="88" width="360" height="56" rx="8" class="d-box"/>
-      <text x="380" y="111" text-anchor="middle" class="d-t">Signal candle closed 09:30–14:30?</text>
+      <text x="380" y="111" text-anchor="middle" class="d-t">Signal candle closed 09:30–14:00?</text>
       <text x="380" y="129" text-anchor="middle" class="d-s">No open trade, and under today’s trade limit</text>
       <path d="M560,116 H660 V35 H514" class="d-arrow-dash" marker-end="url(#ah)"/>
       <text x="606" y="108" class="d-s">no → wait</text>
@@ -264,7 +291,7 @@ pre { font: 12.5px/1.5 var(--f-mono); background: var(--surface); border: 1px so
       <text x="124" y="548" class="d-m" id="d-m1">Stop-loss  : entry ∓ 1R</text>
       <text x="124" y="568" class="d-m" id="d-m2">At +1R     : move SL to entry (cost)</text>
       <text x="124" y="588" class="d-m" id="d-m3">Target     : entry ± 2R (1:2)</text>
-      <text x="124" y="608" class="d-m">Time exit  : 15:15 square-off, no overnight</text>
+      <text x="124" y="608" class="d-m">Time exit  : 14:45 square-off (before MIS cut-off)</text>
       <path d="M380,624 V652" class="d-arrow" marker-end="url(#ah)"/>
       <rect x="200" y="654" width="360" height="54" rx="8" class="d-box"/>
       <text x="380" y="676" text-anchor="middle" class="d-t">Exit: buy back the SOLD leg first,</text>
@@ -604,9 +631,9 @@ python build_report.py    # this page               → report/index.html</pre>
     ["Strike sold", strikeTxt(off), "Tested 100 ITM, ATM and 100 OTM."],
     ["Hedge", `${w} pts beyond the sold strike`, "Tested 100, 200 and 300."],
     ["Expiry", "Current weekly (Tuesday); on Tuesday use next week", "Avoids expiry-day gamma and the extra 2% margin."],
-    ["Entry window", "Signal candle closes 09:30–14:30", "Skips the opening auction noise and late-day entries."],
+    ["Entry window", "Signal candle closes 09:30–14:00", "Skips the opening noise and leaves time to work before the 14:45 exit."],
     ["Trades per day", `${P.max_trades}`, "Tested 1 and 2 in stage 2."],
-    ["Square-off", "15:15, no overnight", "Intraday product (MIS)."],
+    ["Square-off", "14:45, no overnight", "Your MIS rule. The one-year test uses this; the 59-day test below used 15:15."],
     ["Quantity", "1 lot = 65 per leg", "Lot size effective January 2026."],
   ];
   $("#settings").innerHTML = settings.map((r) => `<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td>${r[2]}</td></tr>`).join("");
@@ -649,7 +676,7 @@ python build_report.py    # this page               → report/index.html</pre>
   }).join("");
 
   /* ---------- results ---------- */
-  $("#res-intro").innerHTML = `Real Nifty 50 candles from <b>${M.first}</b> to <b>${M.last}</b> (${M.sessions} sessions). The first ${M.n_is} sessions were used to pick parameters, and the last ${M.sessions - M.n_is} (from ${M.oos_from}) were held back as an unseen test. Each spread is priced with Black-Scholes using the previous day’s India VIX as volatility. P&amp;L is per lot after brokerage (₹20 × 4 orders), STT, exchange fees, GST, stamp duty and 0.5 pt slippage per leg per side.`;
+  $("#res-intro").innerHTML = `Real Nifty 50 candles from <b>${M.first}</b> to <b>${M.last}</b> (${M.sessions} sessions). The first ${M.n_is} sessions were used to pick parameters, and the last ${M.sessions - M.n_is} (from ${M.oos_from}) were held back as an unseen test. Each spread is priced with Black-Scholes using the previous day’s India VIX as volatility. P&amp;L is per lot after brokerage (₹20 × 4 orders), STT, exchange fees, GST, stamp duty and 0.5 pt slippage per leg per side. This first test squared off at 15:15 and allowed entries until 14:30. The one-year test at the top uses your 14:00 / 14:45 MIS timing.`;
   $("#res-meta").innerHTML = [["Last Nifty close", M.last_close.toLocaleString("en-IN")], ["India VIX", M.vix_last], ["Lot size", "65"], ["Target : stop", "2 : 1 always"]]
     .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
   const row = (S, t) => {
@@ -701,16 +728,83 @@ python build_report.py    # this page               → report/index.html</pre>
   const steps = [
     ["Instrument & timeframe", `<div class="field"><span>Signal chart</span><span class="in">NIFTY 50 (spot)</span></div><div class="field"><span>Timeframe</span><span class="in">${recTf} minute</span></div><div class="field"><span>Trade in</span><span class="in">NIFTY weekly options</span></div><div class="field"><span>Expiry</span><span class="in">Current week · roll on Tue</span></div><div class="field"><span>Product</span><span class="in">MIS (intraday)</span></div>`],
     ["Indicators", `<div class="field"><span>EMA fast</span><span class="in">EMA(${P.ma_fast}, close)</span></div><div class="field"><span>EMA slow</span><span class="in">EMA(${P.ma_slow}, close)</span></div><div class="field"><span>MACD</span><span class="in">MACD(12, 26, 9)</span></div><div class="field"><span>Supertrend</span><span class="in">Supertrend(${P.st_period}, ${P.st_mult})</span></div>${P.htf ? `<div class="field"><span>Trend filter</span><span class="in">Supertrend(10, 3) · 60 min</span></div>` : ""}`],
-    ["Entry: bullish", `<div class="cond">Close &gt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">EMA(${P.ma_fast}) &gt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">MACD line crosses above signal${P.macd_zero ? " · MACD &gt; 0" : ""}<span class="and">AND</span></div><div class="cond">Close &gt; Supertrend${P.htf ? " · 60m ST green" : ""}<span class="and">AND</span></div><div class="cond">Time 09:30 – 14:30</div>`],
+    ["Entry: bullish", `<div class="cond">Close &gt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">EMA(${P.ma_fast}) &gt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">MACD line crosses above signal${P.macd_zero ? " · MACD &gt; 0" : ""}<span class="and">AND</span></div><div class="cond">Close &gt; Supertrend${P.htf ? " · 60m ST green" : ""}<span class="and">AND</span></div><div class="cond">Time 09:30 – 14:00</div>`],
     ["Legs: bullish (bull put)", legsBull + `<div class="cap">Execution order: Leg 1 first (hedge), then Leg 2. Most builders have a “buy legs first” toggle.</div>`],
-    ["Entry: bearish", `<div class="cond">Close &lt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">EMA(${P.ma_fast}) &lt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">MACD line crosses below signal${P.macd_zero ? " · MACD &lt; 0" : ""}<span class="and">AND</span></div><div class="cond">Close &lt; Supertrend${P.htf ? " · 60m ST red" : ""}<span class="and">AND</span></div><div class="cond">Time 09:30 – 14:30</div>`],
+    ["Entry: bearish", `<div class="cond">Close &lt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">EMA(${P.ma_fast}) &lt; EMA(${P.ma_slow})<span class="and">AND</span></div><div class="cond">MACD line crosses below signal${P.macd_zero ? " · MACD &lt; 0" : ""}<span class="and">AND</span></div><div class="cond">Close &lt; Supertrend${P.htf ? " · 60m ST red" : ""}<span class="and">AND</span></div><div class="cond">Time 09:30 – 14:00</div>`],
     ["Legs: bearish (bear call)", legsBear + `<div class="cap">Same order: hedge first. On exit, close Leg 2 before Leg 1.</div>`],
-    ["Exit & risk", `<div class="field"><span>Stop-loss</span><span class="in">${P.sl} pts on NIFTY spot</span></div><div class="field"><span>Target</span><span class="in">${P.exit_mode === "trail" || P.exit_mode === "lock_ride" ? "None (trailing exit)" : `${P.sl * 2} pts on NIFTY spot`}</span></div><div class="field"><span>Trail</span><span class="in">${mlines[1].replace(/\s+/g, " ")}</span></div><div class="field"><span>Square-off</span><span class="in">15:15</span></div><div class="field"><span>Max trades/day</span><span class="in">${P.max_trades}</span></div><div class="field"><span>Daily loss cap</span><span class="in">2 × planned SL loss</span></div>`],
+    ["Exit & risk", `<div class="field"><span>Stop-loss</span><span class="in">${P.sl} pts on NIFTY spot</span></div><div class="field"><span>Target</span><span class="in">${P.exit_mode === "trail" || P.exit_mode === "lock_ride" ? "None (trailing exit)" : `${P.sl * 2} pts on NIFTY spot`}</span></div><div class="field"><span>Trail</span><span class="in">${mlines[1].replace(/\s+/g, " ")}</span></div><div class="field"><span>Square-off</span><span class="in">14:45</span></div><div class="field"><span>Max trades/day</span><span class="in">${P.max_trades}</span></div><div class="field"><span>Daily loss cap</span><span class="in">2 × planned SL loss</span></div>`],
     ["Backtest, paper, then live", `<div class="field"><span>Backtest</span><span class="in">≥ 1 year, costs on</span></div><div class="field"><span>Slippage</span><span class="in">0.5 pt per leg per side</span></div><div class="field"><span>Paper trade</span><span class="in">4 weeks minimum</span></div><div class="field"><span>Go live</span><span class="in">1 lot only</span></div><span class="btnmock">Run backtest</span>`],
   ];
   $("#steps").innerHTML = steps.map(([t, b], i) => `<div class="screen"><div class="bar"><span class="n">${i + 1}</span>${t}</div><div class="body">${b}</div></div>`).join("");
 
   /* ---------- limits ---------- */
   $("#limits-list").innerHTML = (window.LIMITS || []).map((x) => `<li>${x}</li>`).join("");
+})();
+</script>
+
+<script>
+(function () {
+  if (!DATA.year) { document.getElementById("year").hidden = true; return; }
+  const $ = (q) => document.querySelector(q);
+  const Y = DATA.year, LS = Y.lots_slip || {};
+  const cls = (v) => (v > 0 ? "good" : v < 0 ? "bad" : "");
+  const mName = (m) => new Date(m + "-01").toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  const F = Y.fixed, B = Y.best, W = Y.walk;
+  const bp = B.params;
+  const slip = (name, lots, sl) => (LS[name] || []).find((r) => r.lots === lots && r.slip === sl);
+  const f025 = slip("fixed", 4, 0.25), b025 = slip("best", 4, 0.25);
+  const upF = F.monthly.filter((m) => m.net4 > 0).length, upW = W.monthly.filter((m) => m.net4 > 0).length;
+  $("#y-intro").innerHTML = `Real Nifty 5-minute candles from Upstox, <b>${Y.first}</b> to <b>${Y.last}</b> (${Y.sessions} sessions, ${Y.months.length} months). New entries stop at <b>${Y.last_entry}</b> and every open trade is squared off at <b>${Y.exit_by}</b>, so MIS auto-square-off never touches it. 4 lots means 260 qty per leg. Brokerage is ₹20 per order whatever the quantity; STT, exchange fees, GST, stamp duty and slippage grow with quantity. Lot size 65 is used for the whole year.`;
+  $("#y-title").textContent = "No. 4 lots cuts the cost per lot by about a quarter, but the setup still loses money for the year.";
+  $("#y-list").innerHTML = [
+    `<b>Why 4 lots isn’t enough:</b> brokerage is the only part that shrinks. Per lot per trade, cost falls from ₹${F.cost_per_lot_1} (1 lot) to ₹${F.cost_per_lot_4} (4 lots). The setup earns only ₹${F.gross_per_lot} per lot per trade before costs, so each trade still loses about ₹${F.cost_per_lot_4 - F.gross_per_lot} per lot.`,
+    `<b>Fixed setup (10-min, from the first test):</b> ${fmtR(F.net1)} at 1 lot and <b>${fmtR(F.net4)}</b> at 4 lots for the year. With 4 times the exposure you lose more rupees in total, even though the loss per lot is smaller. ${upF} of ${F.monthly.length} months were positive.`,
+    `<b>Realistic re-tuning (walk-forward):</b> each month I traded whichever setup did best over the previous 3 months. That made <b>${fmtR(W.net4)}</b> at 4 lots over ${W.monthly.length} months, with ${upW} months positive.`,
+    `<b>The one family that worked, found in hindsight:</b> ${bp.tf}-min, EMA ${bp.ma_fast}/${bp.ma_slow}, Supertrend ${bp.st_period},${bp.st_mult}, 1-hour filter, sell 100 ITM, <b>hedge ${bp.hedge}</b>, SL ${bp.sl}, trailing exit. It made <b>${fmtR(B.net4)}</b> at 4 lots but ${fmtR(B.net1)} at 1 lot. Only ${Y.pct_profitable_4}% of ${Y.combos.toLocaleString("en-IN")} combinations were profitable at 4 lots, and all of them were close variants of this one. It was picked after seeing the whole year, so expect less in practice.`,
+    `<b>What really decides it is fill quality.</b> At 4 lots, getting each leg filled within 0.25 pt instead of 0.5 pt turns the fixed setup from ${fmtR(F.net4)} into ${f025 ? fmtR(f025.net) : "–"}, and the hindsight setup into ${b025 ? fmtR(b025.net) : "–"}. Use limit orders and avoid the first and last minutes of the session.`,
+  ].map((x) => `<li>${x}</li>`).join("");
+  $("#y-stats").innerHTML = [
+    ["Fixed setup · 4 lots", fmtR(F.net4)], ["Fixed setup · 1 lot", fmtR(F.net1)],
+    ["Walk-forward · 4 lots", fmtR(W.net4)], ["Best in hindsight · 4 lots", fmtR(B.net4)],
+    ["Cost / lot / trade", `₹${F.cost_per_lot_1} → ₹${F.cost_per_lot_4}`],
+  ].map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
+
+  const views = {
+    fixed: { name: "Fixed setup", note: `The 10-minute setup recommended from the first test (EMA 9/21, Supertrend 7,3, 1-hour filter, sell 100 ITM, hedge 200, SL 60, trailing), unchanged for the whole year. ${F.trades} trades.`, rows: F.monthly, setup: false },
+    walk: { name: "Walk-forward", note: `Each month uses the setup with the best 4-lot result over the previous ${W.lookback} months, so there is no hindsight. It starts in ${mName(W.monthly[0].month)} because it needs 3 months of history first.`, rows: W.monthly, setup: true },
+    best: { name: "Best in hindsight", note: `The single best of ${Y.combos.toLocaleString("en-IN")} combinations over the whole year: ${bp.tf}-min, EMA ${bp.ma_fast}/${bp.ma_slow}, ST ${bp.st_period},${bp.st_mult}, 1-hour filter, sell 100 ITM, hedge ${bp.hedge}, SL ${bp.sl}, trailing. ${B.trades} trades. This is an optimistic upper bound.`, rows: B.monthly, setup: false },
+  };
+  const tabs = $("#y-tabs");
+  function show(k) {
+    const v = views[k];
+    [...tabs.children].forEach((b) => b.setAttribute("aria-selected", b.dataset.k === k ? "true" : "false"));
+    $("#y-tabnote").textContent = v.note;
+    monthBars($("#y-chart"), v.rows, [{ key: "net1", name: "1 lot", cls: "c1" }, { key: "net4", name: "4 lots", cls: "c4" }]);
+    $("#y-thead").innerHTML = `<tr><th>Month</th><th class="r">Trades</th>${v.setup ? "<th>Setup used that month</th>" : '<th class="r">Wins</th>'}<th class="r">1 lot</th><th class="r">4 lots</th>${v.setup ? "" : '<th class="r">4 lots before costs</th><th class="r">4-lot costs</th>'}</tr>`;
+    $("#y-table").innerHTML = v.rows.map((r) => `<tr><td>${mName(r.month)}</td><td class="r">${r.trades}</td>${v.setup ? `<td class="mono" style="font-size:12px">${r.setup}</td>` : `<td class="r">${r.wins}</td>`}<td class="r ${cls(r.net1)}">${fmtR(r.net1)}</td><td class="r ${cls(r.net4)}">${fmtR(r.net4)}</td>${v.setup ? "" : `<td class="r ${cls(r.gross4)}">${fmtR(r.gross4)}</td><td class="r">${fmtR(-r.costs4)}</td>`}</tr>`).join("");
+    const t = (key) => v.rows.reduce((a, r) => a + (r[key] || 0), 0);
+    $("#y-foot").innerHTML = `<tr style="font-weight:600"><td>Total</td><td class="r">${t("trades")}</td>${v.setup ? "<td></td>" : `<td class="r">${t("wins")}</td>`}<td class="r ${cls(t("net1"))}">${fmtR(t("net1"))}</td><td class="r ${cls(t("net4"))}">${fmtR(t("net4"))}</td>${v.setup ? "" : `<td class="r">${fmtR(t("gross4"))}</td><td class="r">${fmtR(-t("costs4"))}</td>`}</tr>`;
+  }
+  Object.entries(views).forEach(([k, v]) => { const b = document.createElement("button"); b.textContent = v.name; b.dataset.k = k; b.id = `y-tab-${k}`; b.setAttribute("role", "tab"); b.onclick = () => show(k); tabs.appendChild(b); });
+  show("fixed");
+
+  const lsTabs = $("#ls-tabs");
+  function showLs(k) {
+    [...lsTabs.children].forEach((b) => b.setAttribute("aria-selected", b.dataset.k === k ? "true" : "false"));
+    const rows = LS[k] || [];
+    const lots = [...new Set(rows.map((r) => r.lots))];
+    $("#ls-table").innerHTML = lots.map((l) => {
+      const at = (s) => rows.find((r) => r.lots === l && r.slip === s);
+      return `<tr${l === 4 ? ' style="font-weight:600"' : ""}><td>${l} lot${l > 1 ? "s" : ""}</td><td class="r">₹${at(0.5).cost_per_lot_trade}</td>${[0, 0.25, 0.5, 1].map((s) => { const r = at(s); return `<td class="r ${cls(r.net)}">${fmtR(r.net)}</td>`; }).join("")}</tr>`;
+    }).join("");
+    const g = rows[0] ? rows[0].gross_per_lot_trade : 0;
+    $("#ls-cap").textContent = `Net rupees for the whole year. This setup earns about ₹${g} per lot per trade before costs. It makes money only when the cost per lot per trade is below that: brokerage shrinks as you add lots, but slippage does not.`;
+  }
+  [["fixed", "Fixed setup"], ["best", "Best in hindsight"]].forEach(([k, n]) => { const b = document.createElement("button"); b.textContent = n; b.dataset.k = k; b.id = `ls-tab-${k}`; b.setAttribute("role", "tab"); b.onclick = () => showLs(k); lsTabs.appendChild(b); });
+  showLs("fixed");
+
+  const spot = DATA.meta.last_close, notional = spot * 65 * 4;
+  const m300 = notional * 0.02 + 300 * 65 * 4, m200 = notional * 0.02 + 200 * 65 * 4;
+  $("#y-note").innerHTML = `<b>Margin for 4 lots</b> at Nifty ${Math.round(spot).toLocaleString("en-IN")}: about ${fmtR(m200)} with a 200-point hedge, or ${fmtR(m300)} with a 300-point hedge (estimate; check your broker’s basket margin). A stop-loss hit on 4 lots cost ${fmtR(B.avg_sl_loss)} on average (worst single trade ${fmtR(B.worst_trade)}). The hindsight setup’s worst losing run was ${fmtR(B.dd_trades)}, and the fixed setup’s was ${fmtR(F.dd_trades)}. Keep at least ₹3–3.5 lakh in the account to trade 4 lots.`;
 })();
 </script>

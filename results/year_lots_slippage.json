@@ -1,0 +1,366 @@
+{
+ "fixed": [
+  {
+   "lots": 1,
+   "slip": 0.0,
+   "net": 1848,
+   "per_lot": 1848,
+   "cost_per_lot_trade": 133,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 1,
+   "slip": 0.25,
+   "net": -9072,
+   "per_lot": -9072,
+   "cost_per_lot_trade": 198,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 1,
+   "slip": 0.5,
+   "net": -19992,
+   "per_lot": -19992,
+   "cost_per_lot_trade": 263,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 1,
+   "slip": 1.0,
+   "net": -41832,
+   "per_lot": -41832,
+   "cost_per_lot_trade": 393,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 2,
+   "slip": 0.0,
+   "net": 19556,
+   "per_lot": 9778,
+   "cost_per_lot_trade": 86,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 2,
+   "slip": 0.25,
+   "net": -2284,
+   "per_lot": -1142,
+   "cost_per_lot_trade": 151,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 2,
+   "slip": 0.5,
+   "net": -24124,
+   "per_lot": -12062,
+   "cost_per_lot_trade": 216,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 2,
+   "slip": 1.0,
+   "net": -67804,
+   "per_lot": -33902,
+   "cost_per_lot_trade": 346,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 4,
+   "slip": 0.0,
+   "net": 54971,
+   "per_lot": 13743,
+   "cost_per_lot_trade": 62,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 4,
+   "slip": 0.25,
+   "net": 11291,
+   "per_lot": 2823,
+   "cost_per_lot_trade": 127,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 4,
+   "slip": 0.5,
+   "net": -32389,
+   "per_lot": -8097,
+   "cost_per_lot_trade": 192,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 4,
+   "slip": 1.0,
+   "net": -119749,
+   "per_lot": -29937,
+   "cost_per_lot_trade": 322,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 6,
+   "slip": 0.0,
+   "net": 90386,
+   "per_lot": 15064,
+   "cost_per_lot_trade": 54,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 6,
+   "slip": 0.25,
+   "net": 24866,
+   "per_lot": 4144,
+   "cost_per_lot_trade": 119,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 6,
+   "slip": 0.5,
+   "net": -40654,
+   "per_lot": -6776,
+   "cost_per_lot_trade": 184,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 6,
+   "slip": 1.0,
+   "net": -171694,
+   "per_lot": -28616,
+   "cost_per_lot_trade": 314,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 10,
+   "slip": 0.0,
+   "net": 161216,
+   "per_lot": 16122,
+   "cost_per_lot_trade": 48,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 10,
+   "slip": 0.25,
+   "net": 52016,
+   "per_lot": 5202,
+   "cost_per_lot_trade": 113,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 10,
+   "slip": 0.5,
+   "net": -57184,
+   "per_lot": -5718,
+   "cost_per_lot_trade": 178,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  },
+  {
+   "lots": 10,
+   "slip": 1.0,
+   "net": -275584,
+   "per_lot": -27558,
+   "cost_per_lot_trade": 308,
+   "gross_per_lot_trade": 144,
+   "trades": 168
+  }
+ ],
+ "best": [
+  {
+   "lots": 1,
+   "slip": 0.0,
+   "net": 17934,
+   "per_lot": 17934,
+   "cost_per_lot_trade": 129,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 1,
+   "slip": 0.25,
+   "net": 6234,
+   "per_lot": 6234,
+   "cost_per_lot_trade": 194,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 1,
+   "slip": 0.5,
+   "net": -5466,
+   "per_lot": -5466,
+   "cost_per_lot_trade": 259,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 1,
+   "slip": 1.0,
+   "net": -28866,
+   "per_lot": -28866,
+   "cost_per_lot_trade": 389,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 2,
+   "slip": 0.0,
+   "net": 52860,
+   "per_lot": 26430,
+   "cost_per_lot_trade": 82,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 2,
+   "slip": 0.25,
+   "net": 29460,
+   "per_lot": 14730,
+   "cost_per_lot_trade": 147,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 2,
+   "slip": 0.5,
+   "net": 6060,
+   "per_lot": 3030,
+   "cost_per_lot_trade": 212,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 2,
+   "slip": 1.0,
+   "net": -40740,
+   "per_lot": -20370,
+   "cost_per_lot_trade": 342,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 4,
+   "slip": 0.0,
+   "net": 122712,
+   "per_lot": 30678,
+   "cost_per_lot_trade": 58,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 4,
+   "slip": 0.25,
+   "net": 75912,
+   "per_lot": 18978,
+   "cost_per_lot_trade": 123,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 4,
+   "slip": 0.5,
+   "net": 29112,
+   "per_lot": 7278,
+   "cost_per_lot_trade": 188,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 4,
+   "slip": 1.0,
+   "net": -64488,
+   "per_lot": -16122,
+   "cost_per_lot_trade": 318,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 6,
+   "slip": 0.0,
+   "net": 192564,
+   "per_lot": 32094,
+   "cost_per_lot_trade": 50,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 6,
+   "slip": 0.25,
+   "net": 122364,
+   "per_lot": 20394,
+   "cost_per_lot_trade": 115,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 6,
+   "slip": 0.5,
+   "net": 52164,
+   "per_lot": 8694,
+   "cost_per_lot_trade": 180,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 6,
+   "slip": 1.0,
+   "net": -88236,
+   "per_lot": -14706,
+   "cost_per_lot_trade": 310,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 10,
+   "slip": 0.0,
+   "net": 332267,
+   "per_lot": 33227,
+   "cost_per_lot_trade": 44,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 10,
+   "slip": 0.25,
+   "net": 215267,
+   "per_lot": 21527,
+   "cost_per_lot_trade": 109,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 10,
+   "slip": 0.5,
+   "net": 98267,
+   "per_lot": 9827,
+   "cost_per_lot_trade": 174,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  },
+  {
+   "lots": 10,
+   "slip": 1.0,
+   "net": -135733,
+   "per_lot": -13573,
+   "cost_per_lot_trade": 304,
+   "gross_per_lot_trade": 228,
+   "trades": 180
+  }
+ ]
+}

@@ -1,0 +1,427 @@
+{
+  "sessions": 258,
+  "first": "2025-11-03",
+  "last": "2026-11-18",
+  "months": [
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09",
+    "2026-10",
+    "2026-11"
+  ],
+  "lots": 4,
+  "exit_by": "14:45",
+  "last_entry": "14:00",
+  "combos": 1152,
+  "pct_profitable_4": 0.7,
+  "pct_profitable_1": 0.0,
+  "median_net4": -104476,
+  "median_net1": -41683,
+  "fixed": {
+    "params": {
+      "tf": 10,
+      "ma_fast": 9,
+      "ma_slow": 21,
+      "st_period": 7,
+      "st_mult": 3.0,
+      "macd_zero": false,
+      "sl": 60,
+      "exit_mode": "trail",
+      "short_offset": 100,
+      "htf": true,
+      "max_trades": 2,
+      "hedge": 200
+    },
+    "monthly": [
+      {
+        "month": "2025-11",
+        "trades": 14,
+        "wins": 6,
+        "net1": -2698,
+        "net4": -6826,
+        "gross4": 3672,
+        "costs4": 10498
+      },
+      {
+        "month": "2025-12",
+        "trades": 17,
+        "wins": 8,
+        "net1": -127,
+        "net4": 4306,
+        "gross4": 16900,
+        "costs4": 12594
+      },
+      {
+        "month": "2026-01",
+        "trades": 15,
+        "wins": 7,
+        "net1": -1372,
+        "net4": -1241,
+        "gross4": 10148,
+        "costs4": 11390
+      },
+      {
+        "month": "2026-02",
+        "trades": 15,
+        "wins": 7,
+        "net1": -5736,
+        "net4": -18696,
+        "gross4": -7301,
+        "costs4": 11395
+      },
+      {
+        "month": "2026-03",
+        "trades": 10,
+        "wins": 3,
+        "net1": -2401,
+        "net4": -6771,
+        "gross4": 1687,
+        "costs4": 8458
+      },
+      {
+        "month": "2026-04",
+        "trades": 15,
+        "wins": 7,
+        "net1": -1333,
+        "net4": -1085,
+        "gross4": 11196,
+        "costs4": 12281
+      },
+      {
+        "month": "2026-05",
+        "trades": 12,
+        "wins": 2,
+        "net1": -6316,
+        "net4": -21865,
+        "gross4": -12387,
+        "costs4": 9477
+      },
+      {
+        "month": "2026-06",
+        "trades": 13,
+        "wins": 7,
+        "net1": -781,
+        "net4": 559,
+        "gross4": 10620,
+        "costs4": 10060
+      },
+      {
+        "month": "2026-07",
+        "trades": 16,
+        "wins": 8,
+        "net1": -339,
+        "net4": 3176,
+        "gross4": 15051,
+        "costs4": 11874
+      },
+      {
+        "month": "2026-08",
+        "trades": 11,
+        "wins": 6,
+        "net1": -3007,
+        "net4": -8913,
+        "gross4": -827,
+        "costs4": 8086
+      },
+      {
+        "month": "2026-09",
+        "trades": 10,
+        "wins": 5,
+        "net1": 1710,
+        "net4": 9674,
+        "gross4": 17123,
+        "costs4": 7449
+      },
+      {
+        "month": "2026-10",
+        "trades": 15,
+        "wins": 10,
+        "net1": 4418,
+        "net4": 21921,
+        "gross4": 33357,
+        "costs4": 11436
+      },
+      {
+        "month": "2026-11",
+        "trades": 5,
+        "wins": 2,
+        "net1": -2011,
+        "net4": -6629,
+        "gross4": -2618,
+        "costs4": 4011
+      }
+    ],
+    "trades": 168,
+    "net1": -19992,
+    "net4": -32389,
+    "cost_per_lot_1": 263,
+    "cost_per_lot_4": 192,
+    "gross_per_lot": 144,
+    "win_rate": 46.4,
+    "dd_trades": -74900,
+    "avg_sl_loss": -4372,
+    "worst_trade": -7767
+  },
+  "best": {
+    "params": {
+      "tf": "10",
+      "ma_fast": "9",
+      "ma_slow": "21",
+      "st_period": "7",
+      "st_mult": 3.0,
+      "htf": "True",
+      "short_offset": "100",
+      "hedge": "300",
+      "sl": "40",
+      "exit_mode": "trail"
+    },
+    "monthly": [
+      {
+        "month": "2025-11",
+        "trades": 18,
+        "wins": 7,
+        "net1": -7224,
+        "net4": -23797,
+        "gross4": -10500,
+        "costs4": 13297
+      },
+      {
+        "month": "2025-12",
+        "trades": 20,
+        "wins": 8,
+        "net1": -2589,
+        "net4": -4691,
+        "gross4": 9874,
+        "costs4": 14565
+      },
+      {
+        "month": "2026-01",
+        "trades": 15,
+        "wins": 8,
+        "net1": 4202,
+        "net4": 21055,
+        "gross4": 32197,
+        "costs4": 11143
+      },
+      {
+        "month": "2026-02",
+        "trades": 16,
+        "wins": 7,
+        "net1": -3582,
+        "net4": -9797,
+        "gross4": 2090,
+        "costs4": 11887
+      },
+      {
+        "month": "2026-03",
+        "trades": 10,
+        "wins": 6,
+        "net1": 160,
+        "net4": 3473,
+        "gross4": 11715,
+        "costs4": 8241
+      },
+      {
+        "month": "2026-04",
+        "trades": 15,
+        "wins": 8,
+        "net1": 539,
+        "net4": 6404,
+        "gross4": 18419,
+        "costs4": 12015
+      },
+      {
+        "month": "2026-05",
+        "trades": 14,
+        "wins": 6,
+        "net1": -3613,
+        "net4": -10489,
+        "gross4": 345,
+        "costs4": 10834
+      },
+      {
+        "month": "2026-06",
+        "trades": 13,
+        "wins": 8,
+        "net1": 1750,
+        "net4": 10682,
+        "gross4": 20530,
+        "costs4": 9848
+      },
+      {
+        "month": "2026-07",
+        "trades": 17,
+        "wins": 9,
+        "net1": 1600,
+        "net4": 11214,
+        "gross4": 23593,
+        "costs4": 12378
+      },
+      {
+        "month": "2026-08",
+        "trades": 12,
+        "wins": 3,
+        "net1": -5425,
+        "net4": -18303,
+        "gross4": -9589,
+        "costs4": 8715
+      },
+      {
+        "month": "2026-09",
+        "trades": 10,
+        "wins": 5,
+        "net1": 5525,
+        "net4": 24932,
+        "gross4": 32216,
+        "costs4": 7285
+      },
+      {
+        "month": "2026-10",
+        "trades": 15,
+        "wins": 11,
+        "net1": 5172,
+        "net4": 24937,
+        "gross4": 36168,
+        "costs4": 11231
+      },
+      {
+        "month": "2026-11",
+        "trades": 5,
+        "wins": 1,
+        "net1": -1981,
+        "net4": -6508,
+        "gross4": -2590,
+        "costs4": 3918
+      }
+    ],
+    "trades": 180,
+    "net1": -5466,
+    "net4": 29112,
+    "win_rate": 48.3,
+    "dd_trades": -51572,
+    "avg_sl_loss": -4245,
+    "worst_trade": -6979
+  },
+  "per_tf": {
+    "5": {
+      "best_net4": -37473,
+      "median_net4": -142056,
+      "pct_profitable_4": 0.0
+    },
+    "10": {
+      "best_net4": 29112,
+      "median_net4": -84024,
+      "pct_profitable_4": 2.1
+    },
+    "15": {
+      "best_net4": -9613,
+      "median_net4": -97284,
+      "pct_profitable_4": 0.0
+    }
+  },
+  "walk": {
+    "lookback": 3,
+    "monthly": [
+      {
+        "month": "2026-02",
+        "pick": 138,
+        "lookback_net4": 62244,
+        "net4": -10849,
+        "net1": -4765,
+        "trades": 29,
+        "setup": "5m EMA9/21 ST10,3 ITM100 H300 SL50 fixed"
+      },
+      {
+        "month": "2026-03",
+        "pick": 327,
+        "lookback_net4": 42304,
+        "net4": 27720,
+        "net1": 5443,
+        "trades": 21,
+        "setup": "5m EMA20/50 ST10,3 ITM100 H300 SL40 fixed"
+      },
+      {
+        "month": "2026-04",
+        "pick": 327,
+        "lookback_net4": 30008,
+        "net4": 9262,
+        "net1": 546,
+        "trades": 25,
+        "setup": "5m EMA20/50 ST10,3 ITM100 H300 SL40 fixed"
+      },
+      {
+        "month": "2026-05",
+        "pick": 815,
+        "lookback_net4": 71565,
+        "net4": -49632,
+        "net1": -13824,
+        "trades": 20,
+        "setup": "15m EMA9/21 ST7,3 ITM100 H300 SL60 lock_ride"
+      },
+      {
+        "month": "2026-06",
+        "pick": 519,
+        "lookback_net4": 35637,
+        "net4": 2955,
+        "net1": -677,
+        "trades": 20,
+        "setup": "10m EMA9/21 ST10,3 ITM100 H300 SL40 fixed"
+      },
+      {
+        "month": "2026-07",
+        "pick": 426,
+        "lookback_net4": 35887,
+        "net4": -7781,
+        "net1": -3644,
+        "trades": 24,
+        "setup": "10m EMA9/21 ST7,3 ITM100 H300 SL50 fixed"
+      },
+      {
+        "month": "2026-08",
+        "pick": 472,
+        "lookback_net4": 11407,
+        "net4": -18303,
+        "net1": -5425,
+        "trades": 12,
+        "setup": "10m EMA9/21 ST7,3 1h ITM100 H300 SL40 trail"
+      },
+      {
+        "month": "2026-09",
+        "pick": 1140,
+        "lookback_net4": 20698,
+        "net4": 15803,
+        "net1": 3101,
+        "trades": 12,
+        "setup": "15m EMA20/50 ST10,3 1h ITM100 H300 SL30 fixed"
+      },
+      {
+        "month": "2026-10",
+        "pick": 1147,
+        "lookback_net4": 51432,
+        "net4": 14815,
+        "net1": 2712,
+        "trades": 14,
+        "setup": "15m EMA20/50 ST10,3 1h ITM100 H300 SL50 trail"
+      },
+      {
+        "month": "2026-11",
+        "pick": 1148,
+        "lookback_net4": 51950,
+        "net4": -11547,
+        "net1": -3382,
+        "trades": 7,
+        "setup": "15m EMA20/50 ST10,3 1h ITM100 H300 SL50 lock_ride"
+      }
+    ],
+    "net4": -27557,
+    "net1": -19915
+  }
+}
