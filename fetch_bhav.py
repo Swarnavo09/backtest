@@ -1,4 +1,4 @@
-"""Download NSE F&O bhavcopies and keep Nifty weekly option rows (2 nearest expiries).
+"""Download NSE F&O bhavcopies and keep Nifty option rows (NEXP nearest expiries, default 2).
 
 Gives real daily open/high/low/close for every Nifty option strike, used to check
 the option-pricing model and to price spreads with real premiums.
@@ -14,7 +14,9 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).parent
-OUT = ROOT / "data" / "nifty_opt_bhav.csv.gz"
+import os
+NEXP = int(os.environ.get("NEXP", "2"))
+OUT = ROOT / "data" / ("nifty_opt_bhav.csv.gz" if NEXP == 2 else f"nifty_opt_bhav_{NEXP}exp.csv.gz")
 UA = {"User-Agent": "Mozilla/5.0 (backtest script)"}
 NEW_FROM = pd.Timestamp("2024-07-08")   # NSE switched to the UDiFF bhavcopy format
 
@@ -48,7 +50,7 @@ def fetch(d: pd.Timestamp) -> pd.DataFrame | None:
         x = pd.DataFrame({"expiry": pd.to_datetime(x.EXPIRY_DT, format="%d-%b-%Y"), "strike": x.STRIKE_PR,
                           "type": x.OPTION_TYP, "open": x.OPEN, "high": x.HIGH, "low": x.LOW,
                           "close": x.CLOSE, "settle": x.SETTLE_PR, "volume": x.CONTRACTS, "under": float("nan")})
-    exps = sorted(e for e in x.expiry.unique() if e >= d)[:2]
+    exps = sorted(e for e in x.expiry.unique() if e >= d)[:NEXP]
     x = x[x.expiry.isin(exps)].copy()
     x.insert(0, "date", d)
     return x
