@@ -1,0 +1,121 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef0f4;font:14px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif;color:#1d2433}
+.page{width:1680px;padding:24px;background:#f3f4f8;display:grid;gap:18px}
+.banner{background:#14213d;color:#fff;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.banner b{font-size:18px}.banner span{font-size:13px;opacity:.85}
+.grid{display:grid;gap:18px}
+.card{background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:18px 18px;display:grid;gap:12px;align-content:start}
+h3{margin:0;font-size:15px;font-weight:600}
+h2{margin:0;font-size:19px;font-weight:600}
+.lbl{font-size:12.5px;color:#5b6474}
+.in{border:1px solid #d7dbe4;border-radius:7px;padding:9px 12px;background:#fff;font-size:14px;display:flex;justify-content:space-between;align-items:center;min-height:38px}
+.in.dd::after{content:"⌄";color:#555}
+.chg{outline:3px solid #ffb703;outline-offset:1px;background:#fff8e1}
+.row{display:grid;gap:12px}
+.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}.r4{grid-template-columns:repeat(4,1fr)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid #d7dbe4;border-radius:6px;padding:7px 12px;font-size:13px;color:#555;background:#fff}
+.chip.on{border-color:#7fa8f5;background:#e9f0ff;color:#1d4ed8}
+.cb{display:flex;gap:8px;align-items:center}
+.box{width:15px;height:15px;border:1.5px solid #888;border-radius:3px;display:inline-block}
+.box.on{background:#2563eb;border-color:#2563eb;position:relative}
+.box.on::after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2px;top:-2px}
+.radio{width:15px;height:15px;border:1.5px solid #888;border-radius:50%;display:inline-block}
+.radio.on{border:5px solid #2563eb}
+.leg{border:1px solid #cfd9f2;border-radius:10px;padding:14px;display:grid;gap:12px}
+.leghd{display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:5px}
+.sell{background:#fde8e8;color:#c62828}.buy{background:#e6f6ec;color:#1b7f3b}
+.green{color:#1b8a3e;font-weight:600}.red{color:#c62828;font-weight:600}
+.pos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pos div{border:1px solid #d7dbe4;border-radius:7px;padding:9px;text-align:center;font-weight:600;color:#999}
+.pos .b.on{background:#e6f6ec;border-color:#2e9e57;color:#1b7f3b}
+.pos .s.on{background:#fde8e8;border-color:#d64545;color:#c62828}
+.note{background:#fff8e1;border:1px solid #ffd166;border-radius:8px;padding:10px 12px;font-size:13px}
+.note b{color:#9a5b00}
+.cond{display:grid;grid-template-columns:1.2fr 1fr 1.2fr;gap:12px;align-items:start}
+.sub{font-size:11.5px;color:#6b7280;margin-top:3px}
+.num{display:inline-flex;width:20px;height:20px;border-radius:50%;background:#ffb703;color:#000;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:6px}
+.btn{justify-self:end;background:#2563eb;color:#fff;border-radius:7px;padding:9px 16px;font-weight:600;font-size:13px}
+</style></head><body>
+
+<div class="page" id="p1">
+  <div class="banner"><b>Positional strategy · Screen 1 of 3 · Strategy type, order type, legs</b><span>Nifty Trend Debit Spread · positional · 2 lots</span></div>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1.6fr">
+    <div class="card"><h3>Strategy Type</h3>
+      <div class="cb"><span class="box"></span>Option Trading-Time Based</div>
+      <div class="cb"><span class="box on"></span><b>Option Trading-Indicator Based</b></div>
+      <div class="cb"><span class="box"></span>Stocks &amp; Futures -Indicator Based</div></div>
+    <div class="card"><h3>Select Instruments</h3>
+      <div class="row r2"><div><div class="lbl">Underlying</div></div><div class="chips"><span class="chip on">Spot</span><span class="chip">Future</span></div></div>
+      <div class="row r2"><div><div class="lbl">INSTRUMENT NAME</div><b>NIFTY 50</b></div><div><div class="lbl">LOT SIZE</div><b>65</b></div></div>
+      <div><div class="lbl">EXCHANGE</div><b>NSE</b></div></div>
+    <div class="card" style="grid-row:span 2"><div class="leghd"><h3>Strategy Legs</h3><span class="btn">+ Add Leg</span></div>
+      <div class="leg">
+        <div class="leghd"><b>Leg 1 <span class="tag buy">BUY · main leg</span></b><span class="lbl">BUY · NIFTY 50 · Qty 130 · Strike ATM</span></div>
+        <div class="row r2"><div><div class="green">When Long Condition</div><div class="in dd chg">CE</div></div><div><div class="red">When Short Condition</div><div class="in dd chg">PE</div></div></div>
+        <div class="row r2"><div><div class="lbl">Qty (multiples of 65)</div><div class="in chg">130 &nbsp;<span class="lbl">= 2 lots</span></div></div><div><div class="lbl">Position</div><div class="pos"><div class="b on">BUY</div><div class="s">SELL</div></div></div></div>
+        <div class="row r3"><div><div class="lbl">Expiry</div><div class="in dd chg">NEXT WEEKLY</div></div><div><div class="lbl">Strike Criteria</div><div class="in dd">ATM pt</div></div><div><div class="lbl">Strike Type</div><div class="in dd">ATM</div></div></div>
+        <div class="row r3"><div><div class="lbl">SL Type</div><div class="in dd">SL%</div></div><div><div class="lbl">SL</div><div class="in">0 <span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="row r3"><div><div class="lbl">TP Type</div><div class="in dd">TP%</div></div><div><div class="lbl">TP</div><div class="in">0 <span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+      </div>
+      <div class="leg">
+        <div class="leghd"><b>Leg 2 <span class="tag sell">SELL · hedge</span></b><span class="lbl">SELL · NIFTY 50 · Qty 130 · Strike OTM 300</span></div>
+        <div class="row r2"><div><div class="green">When Long Condition</div><div class="in dd chg">CE</div></div><div><div class="red">When Short Condition</div><div class="in dd chg">PE</div></div></div>
+        <div class="row r2"><div><div class="lbl">Qty (multiples of 65)</div><div class="in chg">130</div></div><div><div class="lbl">Position</div><div class="pos"><div class="b">BUY</div><div class="s on">SELL</div></div></div></div>
+        <div class="row r3"><div><div class="lbl">Expiry</div><div class="in dd chg">NEXT WEEKLY</div></div><div><div class="lbl">Strike Criteria</div><div class="in dd">ATM pt</div></div><div><div class="lbl">Strike Type</div><div class="in dd chg">OTM 300</div></div></div>
+        <div class="row r3"><div><div class="lbl">SL Type</div><div class="in dd">SL%</div></div><div><div class="lbl">SL</div><div class="in">0 <span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+        <div class="row r3"><div><div class="lbl">TP Type</div><div class="in dd">TP%</div></div><div><div class="lbl">TP</div><div class="in">0 <span class="lbl">(off)</span></div></div><div><div class="lbl">On Price</div><div class="in dd">On Price</div></div></div>
+      </div>
+      <div class="note"><b>What this builds:</b> on a long (bullish) signal both legs are CE: buy ATM CE and sell the CE 300 pts higher (a bull call spread). On a short (bearish) signal both are PE: buy ATM PE and sell the PE 300 pts lower (a bear put spread). The most you can lose is the premium paid, about ₹15–20k for 2 lots. <b>This is the opposite of the intraday strategy:</b> here Leg 1 is BUY and Leg 2 is SELL.<br><b>Expiry:</b> the backtest used the nearest weekly with at least 8 days left. <i>NEXT WEEKLY</i> is the closest AlgoRooms choice. On a Monday or Tuesday it can leave only 7–8 days; that’s fine.</div>
+    </div>
+    <div class="card" style="grid-column:span 2"><h2>Order Type</h2>
+      <div class="chips"><span class="cb"><span class="radio"></span>MIS</span><span class="cb chg" style="padding:4px 6px;border-radius:6px"><span class="radio on"></span><b>CNC</b> <span class="lbl">← positional (carry forward)</span></span><span class="cb"><span class="radio"></span>BTST</span></div>
+      <div class="row r2"><div><div class="lbl">Start Time</div><div class="in chg">09:15 AM</div></div><div><div class="lbl">Square Off</div><div class="in chg">03:25 PM <span class="lbl">(only applies on the exit day)</span></div></div></div>
+      <div><div class="lbl">Days</div><div class="chips"><span class="chip on">MON</span><span class="chip on">TUE</span><span class="chip on">WED</span><span class="chip on">THU</span><span class="chip on">FRI</span></div></div>
+      <div class="row r2"><div><div class="lbl">Transaction Type</div><div class="chips"><span class="chip on">Both Side</span><span class="chip">Only Long</span><span class="chip">Only Short</span></div></div><div><div class="lbl">Chart Type</div><div class="chips"><span class="chip on">Candle</span><span class="chip">Heikin Ashi</span></div></div></div>
+      <div><div class="lbl">Interval</div><div class="chips"><span class="chip">1 min</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span><span class="chip">15 min</span><span class="chip">30 min</span><span class="chip on chg">1H</span></div></div>
+      <div class="note"><b>Why 09:15 AM start:</b> entries use a crossover (screen 2), which only fires on the hourly candle where the cross happens. Checking all day means AlgoRooms catches the cross whenever it happens. The backtest acted the next morning instead, so entries will sometimes come a few hours earlier than tested. If AlgoRooms’ CNC mode adds an automatic square-off time, set it so positions are <b>not</b> closed each day. They are meant to be held until the exit rules on screens 2–3 fire.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="p2" style="margin-top:30px">
+  <div class="banner"><b>Positional strategy · Screen 2 of 3 · Entry and exit conditions (1H chart)</b><span>All rows joined with AND · 1-hour EMA 140 ≈ daily EMA 20 · EMA 350 ≈ daily EMA 50 / weekly EMA 10</span></div>
+  <div class="card">
+    <div class="green" style="font-size:15px">Long Entry · bullish (opens bull call spread)</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>EMA</span></div><div class="sub">PERIOD(140) · source Close · Interval(0) = 1H</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(350) · source Close</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>Close / Price</span></div><div class="sub">1H candle close</div></div><div class="in dd chg">Crosses Above</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(140)</div></div></div>
+    <div class="red" style="font-size:15px;margin-top:10px">Short Entry · bearish (opens bear put spread)</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>EMA</span></div><div class="sub">PERIOD(140)</div></div><div class="in dd chg">Less Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(350)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>Close / Price</span></div></div><div class="in dd chg">Crosses Below</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(140)</div></div></div>
+    <div class="cb"><span class="box on"></span>Exit Conditions (Optional) &nbsp;<span class="lbl"><b>tick this:</b> close the trade when the trend flips against it</span></div>
+    <div class="green" style="font-size:15px">Long Exit</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>EMA</span></div><div class="sub">PERIOD(140)</div></div><div class="in dd chg">Less Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(350)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>Close / Price</span></div></div><div class="in dd chg">Less Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(140)</div></div></div>
+    <div class="red" style="font-size:15px;margin-top:6px">Short Exit</div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">1</span>EMA</span></div><div class="sub">PERIOD(140)</div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(350)</div></div></div>
+    <div class="cond"><div><div class="in chg"><span><span class="num">2</span>Close / Price</span></div></div><div class="in dd chg">Greater Than</div><div><div class="in chg">EMA</div><div class="sub">PERIOD(140)</div></div></div>
+    <div class="note"><b>Why “Crosses Above / Below” here:</b> the backtest only entered when the trend setup was <i>new</i>. Re-entering straight away while the old setup was still showing turned a +₹2.39 L strategy into a loser in 2025–26. Using a crossover means that after a stop-loss, AlgoRooms waits for a fresh cross before the next trade. Rows 1 keep you on the trend side.<br><b>If your chart history is short:</b> EMA 350 on 1H needs about 50 trading days of history. AlgoRooms normally loads this itself; if the line looks wrong, check the data range.</div>
+  </div>
+</div>
+
+<div class="page" id="p3" style="margin-top:30px">
+  <div class="banner"><b>Positional strategy · Screen 3 of 3 · Risk management</b><span>Replaces the “exit if Nifty closes 1% against you” stop</span></div>
+  <div class="card"><div style="display:flex;align-items:center;gap:8px"><h2>Risk Management</h2></div>
+    <div class="row r4">
+      <div><div class="lbl">Exit When Over All Profit In Amount (INR)</div><div class="in">leave empty <span class="lbl">(no target)</span></div></div>
+      <div><div class="lbl">Exit When Over All Loss In Amount (INR)</div><div class="in chg"><b>10000</b> <span class="lbl">≈ 1% Nifty move, 2 lots</span></div></div>
+      <div><div class="lbl">Max Trade Cycle</div><div class="in">1 <span class="lbl">per day</span></div></div>
+      <div><div class="lbl">No Trade After</div><div class="in chg">03:20 PM</div></div>
+    </div>
+    <div class="lbl" style="font-weight:600;color:#1d2433">Profit Trailing</div>
+    <div class="row r4"><div class="cb"><span class="radio on"></span><b>No Trailing</b></div><div class="cb"><span class="radio"></span>Lock Fix Profit</div><div class="cb"><span class="radio"></span>Trail Profit</div><div class="cb"><span class="radio"></span>Lock and Trail</div></div>
+    <div class="note"><b>₹10,000 loss limit:</b> in the backtest, a 1% adverse Nifty close cost about ₹9,700–10,300 at 2 lots. Scale it with lots: about ₹5,000 per lot.<br><b>Exit before expiry (important):</b> the backtest closed every trade at the close of the <b>day before expiry</b>. If AlgoRooms has an “exit before expiry” or “square off N days before expiry” option, set it to 1 day. If it doesn’t, close the trade yourself at about 03:15 PM on the day before expiry. Don’t let a positional spread go into expiry day.</div>
+  </div>
+  <div class="card"><h2>Strategy Name</h2><div class="in chg">Nifty Positional Debit Spread · 1H · 2 lots</div>
+    <div class="note" style="background:#eef6ff;border-color:#9cc3f5"><b>Backtest (real NSE premiums, 2 lots, all costs):</b> +₹2.38 L over Jan 2022 – Nov 2026, profit every year, worst drawdown −₹60,933, about 13 trades a year held around 7 days each. Last 2 years: +₹84,575.</div>
+    <span class="btn">Create</span></div>
+</div>
+</body></html>
