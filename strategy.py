@@ -85,13 +85,18 @@ def strike_iv(atm_iv, S, K, kind):
     return max(atm_iv + adj, 0.05)
 
 
+def expiry_weekday(d) -> int:
+    """Nifty weekly expiry: Thursday until Aug 2025, Tuesday from 1 Sep 2025."""
+    return 3 if d < datetime(2025, 9, 1).date() else EXPIRY_WEEKDAY
+
+
 def next_expiry(ts: pd.Timestamp) -> datetime:
     """Next weekly expiry. On expiry day itself we roll to the next week."""
     d = ts.date()
-    days = (EXPIRY_WEEKDAY - d.weekday()) % 7
-    if days == 0:
-        days = 7
-    return datetime.combine(d + timedelta(days=days), time(15, 30))
+    x = d + timedelta(days=1)                   # strictly after today: roll on expiry day
+    while x.weekday() != expiry_weekday(x):
+        x += timedelta(days=1)
+    return datetime.combine(x, time(15, 30))
 
 
 def years_to(ts: pd.Timestamp, expiry: datetime) -> float:
@@ -105,6 +110,21 @@ def spread_value(S, ts, legs, expiry, atm_iv):
     short = bs_price(S, ks, T, strike_iv(atm_iv, S, ks, kind), kind)
     long_ = bs_price(S, kl, T, strike_iv(atm_iv, S, kl, kind), kind)
     return short, long_
+
+
+# Pluggable pricing: the default uses India VIX + a simple skew and calendar time.
+# realiv.py swaps these for real implied vols from NSE bhavcopies.
+def _default_iv(day, entry_ts, legs, expiry, vix_prev):
+    if day not in vix_prev.index or pd.isna(vix_prev.loc[day]):
+        return None
+    return float(vix_prev.loc[day]) / 100
+
+
+def _default_price(S, ts, legs, expiry, iv):
+    return spread_value(S, ts, legs, expiry, iv)
+
+
+PRICING = {"expiry": lambda ts, p: next_expiry(ts), "iv": _default_iv, "price": _default_price}
 
 
 def charges(sell_prem_total, buy_prem_total, lots=1):
@@ -139,6 +159,7 @@ class Params:
     max_trades: int = 2
     slip: float = 0.5            # slippage per leg per side, in points
     lots: int = 1                # lots per leg (brokerage is per order, so it does not scale)
+    dte0: bool = False           # allow trading the expiring weekly on expiry day (real-IV pricing only)
     start: time = time(9, 30)    # earliest signal-candle close
     last_entry: time = time(14, 30)
     squareoff: time = time(15, 15)
@@ -248,10 +269,7 @@ def backtest(df: pd.DataFrame, vix: pd.Series, p: Params) -> pd.DataFrame:
         if side == 0 or dates[i + 1] != dates[i]:
             continue
         day = pd.Timestamp(dates[i])
-        if day not in vix_prev.index or pd.isna(vix_prev.loc[day]):
-            continue
         entry_ts, entry = idx[i + 1], o[i + 1]
-        atm_iv = float(vix_prev.loc[day]) / 100
         k = round(entry / STRIKE_STEP) * STRIKE_STEP
         if side == 1:
             ks = k + p.short_offset
@@ -259,12 +277,17 @@ def backtest(df: pd.DataFrame, vix: pd.Series, p: Params) -> pd.DataFrame:
         else:
             ks = k - p.short_offset
             legs = ((ks, "C"), (ks + p.hedge, "C"))
-        exp = next_expiry(entry_ts)
-        s_in, l_in = spread_value(entry, entry_ts, legs, exp, atm_iv)
+        exp = PRICING["expiry"](entry_ts, p)
+        if exp is None:
+            continue
+        atm_iv = PRICING["iv"](day, entry_ts, legs, exp, vix_prev)
+        if atm_iv is None:
+            continue
+        s_in, l_in = PRICING["price"](entry, entry_ts, legs, exp, atm_iv)
         pos = dict(side=side, day=dates[i + 1], entry_ts=entry_ts, entry=entry, legs=legs,
                    expiry=exp, iv=atm_iv, short_in=s_in, long_in=l_in,
                    sl_lvl=entry - side * p.sl,
-                   tgt=entry + side * p.rr * p.sl if p.exit_mode not in ("trail", "lock_ride") else None,
+                   tgt=entry + side * p.rr * p.sl if p.exit_mode not in ("trail", "lock_ride", "hold") else None,
                    best=entry, signal_ts=idx[i])
         if p.exit_mode == "lock_ride":
             pos["tgt"] = None
@@ -300,7 +323,7 @@ def _update_trail(pos, hi, lo, cl, p: Params):
 
 
 def _close(pos, exit_px, exit_ts, reason, p: Params):
-    s_out, l_out = spread_value(exit_px, exit_ts, pos["legs"], pos["expiry"], pos["iv"])
+    s_out, l_out = PRICING["price"](exit_px, exit_ts, pos["legs"], pos["expiry"], pos["iv"])
     credit = pos["short_in"] - pos["long_in"]
     debit = s_out - l_out
     gross1 = (credit - debit) * LOT_SIZE          # per lot
@@ -318,7 +341,7 @@ def _close(pos, exit_px, exit_ts, reason, p: Params):
         credit=round(credit, 2), close_cost=round(debit, 2),
         gross=round(gross, 2), costs=round(cost, 2), net=round(gross - cost, 2),
         net_1lot=round(gross1 - cost1, 2), costs_1lot=round(cost1, 2), lots=p.lots,
-        reason=reason, iv=pos["iv"],
+        reason=reason, iv=str(pos["iv"]),
         mfe=round((pos["best"] - pos["entry"]) * pos["side"], 2),
         mae=round((pos.get("worst", pos["entry"]) - pos["entry"]) * pos["side"], 2),
     )
@@ -350,3 +373,56 @@ def params_dict(p: Params) -> dict:
     for k in ("start", "last_entry", "squareoff"):
         d.pop(k)
     return d
+
+
+# ------------------------------------------------- v2: weekly / daily bias
+def bias_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Weekly and daily candle colour, both 'live' (as of this candle's close) and
+    'prev' (last completed candle). Nothing here looks ahead."""
+    out = pd.DataFrame(index=df.index)
+    day = pd.Series(df.index.date, index=df.index)
+    wk = pd.Series(df.index.tz_localize(None).to_period("W-SUN").astype(str), index=df.index)
+    day_open = df.Open.groupby(day).transform("first")
+    week_open = df.Open.groupby(wk).transform("first")
+    out["d_live"] = np.sign(df.Close - day_open)
+    out["w_live"] = np.sign(df.Close - week_open)
+    d = df.groupby(day).agg(o=("Open", "first"), c=("Close", "last"))
+    d_prev = np.sign(d.c - d.o).shift(1)
+    out["d_prev"] = day.map(d_prev).values
+    w = df.groupby(wk).agg(o=("Open", "first"), c=("Close", "last"))
+    w_prev = np.sign(w.c - w.o).shift(1)
+    out["w_prev"] = wk.map(w_prev).values
+    return out
+
+
+SIGSETS = {
+    "st": ("st",), "st_ema": ("st", "ema"), "st_macd": ("st", "macd"),
+    "ema_macd": ("ema", "macd"), "all3": ("st", "ema", "macd"),
+}
+BIAS = {
+    "none": None,
+    "live": ("w_live", "d_live"),     # this week so far AND today so far
+    "prev": ("w_prev", "d_prev"),     # last completed week AND yesterday
+    "wprev_dlive": ("w_prev", "d_live"),
+    "wlive_dlive_prevday": ("w_live", "d_live", "d_prev"),
+}
+
+
+def add_signals_v2(df: pd.DataFrame, sigset: str, bias: str, ma=(9, 21), st=(10, 3.0)) -> pd.DataFrame:
+    out = df.copy()
+    out["ema_f"], out["ema_s"] = ema(out.Close, ma[0]), ema(out.Close, ma[1])
+    out["macd"], out["sig"] = macd(out.Close)
+    out["st_dir"], out["st_line"] = supertrend(out, st[0], st[1])
+    comp_bull = {"st": out.st_dir == 1, "ema": (out.Close > out.ema_s) & (out.ema_f > out.ema_s),
+                 "macd": out.macd > out.sig}
+    comp_bear = {"st": out.st_dir == -1, "ema": (out.Close < out.ema_s) & (out.ema_f < out.ema_s),
+                 "macd": out.macd < out.sig}
+    bull = np.logical_and.reduce([comp_bull[k] for k in SIGSETS[sigset]])
+    bear = np.logical_and.reduce([comp_bear[k] for k in SIGSETS[sigset]])
+    if BIAS[bias]:
+        b = bias_columns(out)
+        for col in BIAS[bias]:
+            bull &= (b[col] > 0).values
+            bear &= (b[col] < 0).values
+    out["bull"], out["bear"] = bull, bear
+    return out

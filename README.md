@@ -53,3 +53,25 @@ python build_report.py
 fixed per order), but the setup earns about Rs 144 per lot per trade before costs.
 Slippage is the deciding factor: at 0.25 pt per leg instead of 0.5 pt, the fixed setup
 at 4 lots makes +Rs 11,291 for the year.
+
+## v3: weekly/daily bias + real option prices (current strategy)
+
+```bash
+python fetch_upstox.py 2022-01-01 2026-11-18   # then save the 5m file as data/nifty_5m_5y.csv
+python fetch_bhav.py                            # NSE bhavcopies -> real Nifty option premiums
+python calibrate.py                             # 70% trading-time / 30% calendar-time decay fits real prices
+python run_v3.py mix70v                         # 9,600 setups on 15-minute candles, 2022-2026
+python select_v3.py mix70v                      # choose on 2022-24 only, stress-test on 2025-26
+python build_report_v3.py mix70v                # report/index.html
+```
+
+Rules (consensus of the 461 setups that were profitable in each of 2022, 2023, 2024):
+trade bullish only when this week's and today's candles are green (bearish when both red);
+trigger = Supertrend(10,3) + EMA 9/21 + MACD(12,26,9) on 15-minute candles, signal 09:30-13:30;
+sell ATM, hedge 300 points away (bull put / bear call), nearest weekly incl. expiry day;
+SL 120 Nifty points, otherwise hold to 14:45; max 1 trade a day; 6 lots.
+
+Result at 6 lots after all charges and 0.5 pt slippage per leg per side:
+2022-24 +Rs 4.73 lakh (PF 1.20), 2025-Nov 2026 +Rs 6.40 lakh (PF 1.43), every year positive.
+About 77% of the profit comes from expiry-day trades. Intraday option prices are modelled
+from real previous-day closing premiums with VIX-driven IV, not recorded tick data.

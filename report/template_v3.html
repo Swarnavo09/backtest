@@ -1,0 +1,512 @@
+<title>Nifty Trend Spread</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~880px) with wide figure blocks; each section = rules first, then evidence. */
+:root {
+  --bg: #f4f5f7; --surface: #ffffff; --surface-2: #eceff3;
+  --ink: #12161c; --ink-2: #485160; --muted: #7a8391; --line: #dde1e7; --axis: #b9c0ca;
+  --accent: #1f5fbf; --accent-soft: #e3ecfa;
+  --bull: #0b8a3e; --bull-soft: #e2f3e8; --bear: #c93636; --bear-soft: #fbe6e6;
+  --warn: #9a5b00; --warn-soft: #fbf0dc;
+  --s5: #2a78d6; --s10: #eb6834; --s15: #1baf7a;
+  --pos1: #dbeafb; --pos2: #a9cbf3; --pos3: #5f9be6; --pos4: #2a6cc4;
+  --neg1: #fbe2e2; --neg2: #f3b1b1; --neg3: #e36d6d; --neg4: #b83434;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216; --surface: #171b21; --surface-2: #1f242c;
+    --ink: #eef1f4; --ink-2: #b7bfca; --muted: #8a929d; --line: #2a3039; --axis: #3d4550;
+    --accent: #6ea4f0; --accent-soft: #1b2a40;
+    --bull: #35c46b; --bull-soft: #15301f; --bear: #f07070; --bear-soft: #3a1c1c;
+    --warn: #f0a640; --warn-soft: #382a14;
+    --s5: #3987e5; --s10: #d95926; --s15: #199e70;
+    --pos1: #17283d; --pos2: #1d3f69; --pos3: #2d65ad; --pos4: #4d8ee6;
+    --neg1: #3a1d1d; --neg2: #5e2626; --neg3: #9a3434; --neg4: #d65252;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216; --surface: #171b21; --surface-2: #1f242c;
+  --ink: #eef1f4; --ink-2: #b7bfca; --muted: #8a929d; --line: #2a3039; --axis: #3d4550;
+  --accent: #6ea4f0; --accent-soft: #1b2a40;
+  --bull: #35c46b; --bull-soft: #15301f; --bear: #f07070; --bear-soft: #3a1c1c;
+  --warn: #f0a640; --warn-soft: #382a14;
+  --s5: #3987e5; --s10: #d95926; --s15: #199e70;
+  --pos1: #17283d; --pos2: #1d3f69; --pos3: #2d65ad; --pos4: #4d8ee6;
+  --neg1: #3a1d1d; --neg2: #5e2626; --neg3: #9a3434; --neg4: #d65252;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 920px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 26px; font-weight: 700; }
+h3 { font-size: 18px; font-weight: 700; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 600 12px/1 var(--f-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 16px; padding-block: 36px 8px; border-top: 1px solid var(--line); margin-top: 28px; }
+header { display: grid; gap: 14px; }
+.lede { font-size: 17px; color: var(--ink-2); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+nav.toc a { color: var(--accent); text-decoration: none; }
+nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.verdict { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 8px; padding: 18px 20px; display: grid; gap: 10px; }
+.verdict h2 { font-size: 20px; }
+.verdict ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font: 600 20px/1.2 var(--f-mono); }
+
+.fig { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.fig figcaption, .cap { font-size: 13px; color: var(--muted); }
+.scroll { overflow-x: auto; }
+.scroll > svg { min-width: 640px; }
+svg { display: block; width: 100%; height: auto; }
+
+/* diagram parts */
+.d-box { fill: var(--surface-2); stroke: var(--line); }
+.d-bull { fill: var(--bull-soft); stroke: var(--bull); }
+.d-bear { fill: var(--bear-soft); stroke: var(--bear); }
+.d-acc { fill: var(--accent-soft); stroke: var(--accent); }
+.d-warn { fill: var(--warn-soft); stroke: var(--warn); }
+.d-t { fill: var(--ink); font: 600 13px var(--f-body); }
+.d-s { fill: var(--ink-2); font: 12px var(--f-body); }
+.d-m { fill: var(--ink-2); font: 11.5px var(--f-mono); }
+.d-arrow { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+.d-arrow-dash { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+.d-head { fill: var(--ink-2); }
+.d-bullt { fill: var(--bull); font: 700 12px var(--f-body); }
+.d-beart { fill: var(--bear); font: 700 12px var(--f-body); }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.two > * { min-width: 0; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.rule.bull { border-top: 3px solid var(--bull); }
+.rule.bear { border-top: 3px solid var(--bear); }
+.rule ol, .rule ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.pill { display: inline-block; font: 600 11px/1 var(--f-body); letter-spacing: .05em; text-transform: uppercase; padding: 5px 8px; border-radius: 4px; }
+.pill.bull { background: var(--bull-soft); color: var(--bull); }
+.pill.bear { background: var(--bear-soft); color: var(--bear); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.acc { background: var(--accent-soft); color: var(--accent); }
+
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font-size: 12px; color: var(--muted); font-weight: 600; }
+td.r, th.r { white-space: nowrap; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.tbl table { min-width: 620px; }
+.good { color: var(--bull); } .bad { color: var(--bear); }
+
+/* charts */
+.chart { position: relative; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .axis { stroke: var(--axis); stroke-width: 1; }
+.chart .tick { fill: var(--muted); font: 11px var(--f-mono); }
+.chart .tick.strong { fill: var(--ink-2); font-weight: 500; }
+.chart .lab { fill: var(--ink); font: 600 13px var(--f-body); }
+.chart .val { fill: var(--ink-2); font: 11.5px var(--f-mono); }
+.chart .line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.chart .line.s5 { stroke: var(--s5); } .chart .line.s10 { stroke: var(--s10); } .chart .line.s15 { stroke: var(--s15); }
+.chart .dot { stroke: var(--surface); stroke-width: 2; }
+.chart .dot.s5 { fill: var(--s5); } .chart .dot.s10 { fill: var(--s10); } .chart .dot.s15 { fill: var(--s15); }
+.chart .oos-band { fill: var(--surface-2); }
+.chart .cross { stroke: var(--axis); stroke-width: 1; }
+.chart .b-gross { fill: var(--pos3); } .chart .b-cost { fill: var(--muted); } .chart .b-net { fill: var(--bear); }
+.chart .wick { stroke-width: 1; } .chart .wick.up { stroke: var(--bull); } .chart .wick.dn { stroke: var(--bear); }
+.chart .body.up { fill: var(--bull); } .chart .body.dn { fill: var(--bear); }
+.chart .ema-f { fill: none; stroke: var(--s5); stroke-width: 1.6; }
+.chart .ema-s { fill: none; stroke: var(--s10); stroke-width: 1.6; }
+.chart .st-up { stroke: var(--bull); stroke-width: 2; stroke-dasharray: 2 2; }
+.chart .st-dn { stroke: var(--bear); stroke-width: 2; stroke-dasharray: 2 2; }
+.chart .lv-entry { stroke: var(--ink-2); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.chart .lv-sl { stroke: var(--bear); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.chart .lv-tgt { stroke: var(--bull); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.chart .mk-up { fill: var(--bull); } .chart .mk-dn { fill: var(--bear); }
+.chart .mk-exit { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.chart .h-up { fill: var(--pos2); } .chart .h-dn { fill: var(--neg2); }
+.chart .macd-l { fill: none; stroke: var(--s5); stroke-width: 1.4; }
+.chart .macd-s { fill: none; stroke: var(--s10); stroke-width: 1.4; }
+.chart .col.c1 { fill: var(--s5); } .chart .col.c4 { fill: var(--s10); }
+.sw.c1 { background: var(--s5); } .sw.c4 { background: var(--s10); }
+.answer { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 18px 20px; display: grid; gap: 10px; }
+.answer ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
+.chart .pay-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.chart .pay-area { fill: var(--accent-soft); }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); min-width: 160px; z-index: 2; }
+.tip-h { font-weight: 600; margin-bottom: 4px; }
+.tip-row { display: flex; gap: 8px; align-items: center; justify-content: space-between; color: var(--ink-2); }
+.tip-row b { font: 500 12px var(--f-mono); color: var(--ink); margin-left: auto; }
+.sw { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
+.sw.s5 { background: var(--s5); } .sw.s10 { background: var(--s10); } .sw.s15 { background: var(--s15); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); align-items: center; }
+.legend .sw { width: 16px; height: 3px; margin-right: 6px; vertical-align: middle; }
+.legend .box { width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+
+table.heat { min-width: 560px; }
+table.heat td { text-align: center; font: 12px var(--f-mono); color: var(--ink); }
+.pos1 { background: var(--pos1); } .pos2 { background: var(--pos2); } .pos3 { background: var(--pos3); color: #fff !important; } .pos4 { background: var(--pos4); color: #fff !important; }
+.neg1 { background: var(--neg1); } .neg2 { background: var(--neg2); } .neg3 { background: var(--neg3); color: #fff !important; } .neg4 { background: var(--neg4); color: #fff !important; }
+.pos0, .neg0 { background: transparent; }
+
+/* tabs */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tabs button { font: 600 13px var(--f-body); padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* builder mockups */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+.screen { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-width: 0; }
+.screen .bar { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); font: 600 12.5px var(--f-body); }
+.screen .bar .n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font-size: 12px; }
+.screen .body { padding: 12px; display: grid; gap: 8px; align-content: start; }
+.field { display: grid; grid-template-columns: 112px 1fr; gap: 8px; align-items: center; font-size: 12.5px; }
+.field > span:first-child { color: var(--muted); }
+.field .in { font: 12px var(--f-mono); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; overflow-wrap: anywhere; }
+.cond { font: 12px var(--f-mono); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; display: flex; gap: 8px; align-items: center; }
+.cond .and { margin-left: auto; font: 600 10px var(--f-body); color: var(--accent); }
+.btnmock { justify-self: start; font: 600 12px var(--f-body); background: var(--accent); color: #fff; border-radius: 5px; padding: 6px 12px; }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.calc label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.calc input, .calc select { font: 14px var(--f-mono); padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); width: 100%; }
+.note { background: var(--warn-soft); color: var(--ink); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; }
+.note b { color: var(--warn); }
+code { font: 12.5px var(--f-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+pre { font: 12.5px/1.5 var(--f-mono); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style><style>
+.chart .col.c6 { fill: var(--s10); } .sw.c6 { background: var(--s10); }
+.chart .line.eq { stroke: var(--accent); } .chart .dot.eq { fill: var(--accent); } .sw.eq { background: var(--accent); }
+.matrix td, .matrix th { text-align: center; }
+.rule { align-content: start; }
+.rule .pill { justify-self: start; }
+.two .tbl table, .rule table { min-width: 0; }
+#kpis { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.matrix .go-b { background: var(--bull-soft); color: var(--bull); font-weight: 600; }
+.matrix .go-s { background: var(--bear-soft); color: var(--bear); font-weight: 600; }
+.matrix .skip { color: var(--muted); }
+.kpi-good { color: var(--bull); } .kpi-bad { color: var(--bear); }
+details > summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+</style>
+<div class="wrap">
+<header>
+  <span class="eyebrow">Nifty 50 · weekly options · intraday MIS · hedged selling · up to 6 lots</span>
+  <h1>Nifty Trend Spread</h1>
+  <p class="lede" id="lede">This version only trades when the bigger candles agree. On those days it sells a hedged spread in that direction on a 15-minute signal, then holds it until 14:45 unless the stop is hit. All results are after brokerage, STT, exchange charges, SEBI fee, stamp duty, GST and slippage. Every option leg is priced from real NSE closing premiums.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#rules">Rules</a><a href="#results">Results</a><a href="#monthly">Month by month</a><a href="#robust">Stress tests</a><a href="#capital">Lots &amp; capital</a><a href="#setup">Algo setup</a><a href="#why">What changed</a><a href="#trades">Recent trades</a><a href="#limits">Limits</a>
+  </nav>
+  <div class="answer" id="verdict"><span class="pill acc">Backtest verdict</span><h2 id="v-title" style="font-size:20px"></h2><ul id="v-list"></ul></div>
+  <div class="stats" id="kpis"></div>
+</header>
+
+<section id="rules">
+  <span class="eyebrow">The strategy</span>
+  <h2>Rules</h2>
+  <p>A trade needs all of these conditions. On most days at least one is missing, so the algo takes no trade.</p>
+  <div class="two">
+    <div class="rule">
+      <span class="pill acc">Step 1 · Direction of the day</span>
+      <p style="font-size:14px">Re-checked at every 15-minute candle close using live candles:</p>
+      <table class="matrix" id="matrix"></table>
+      <p class="cap">“This week” is green when the current price is above the week’s first open, and “today” when it is above today’s 09:15 open. A day can start mixed and become tradable later, or the other way round.</p>
+    </div>
+    <div class="rule">
+      <span class="pill acc">Step 2 · Entry trigger (15-minute chart)</span>
+      <ol id="trigger"></ol>
+      <span class="pill acc">Step 3 · Position</span>
+      <ul id="position"></ul>
+      <span class="pill acc">Step 4 · Exit</span>
+      <ul id="exit"></ul>
+    </div>
+  </div>
+  <figure class="fig">
+    <div class="scroll"><svg viewBox="0 0 760 560" role="img" aria-label="Strategy flowchart" id="flow"></svg></div>
+    <figcaption>Each 15-minute candle close runs this check. At most one trade a day.</figcaption>
+  </figure>
+</section>
+
+<section id="results">
+  <span class="eyebrow">Evidence</span>
+  <h2>Backtest results</h2>
+  <p id="res-intro"></p>
+  <div class="tbl"><table>
+    <thead><tr><th>Period</th><th class="r">Trades</th><th class="r">Win %</th><th class="r">Profit factor</th><th class="r">Net · 6 lots</th><th class="r">Net · 1 lot</th><th class="r">Max drawdown · 6 lots</th></tr></thead>
+    <tbody id="tt"></tbody>
+  </table></div>
+  <figure class="fig">
+    <h3>Equity curve, 6 lots, after all costs</h3>
+    <div class="legend"><span><span class="sw eq"></span>Cumulative net P&amp;L</span><span><span class="box" style="background:var(--surface-2);border:1px solid var(--line)"></span>Never-seen test period (2025 onward)</span></div>
+    <div id="equity"></div>
+  </figure>
+  <div class="tbl"><table><thead><tr><th>Year</th><th class="r">Net · 6 lots</th></tr></thead><tbody id="years"></tbody></table></div>
+  <div class="note" id="strict"></div>
+  <div class="note" id="pickrule" style="background:var(--accent-soft)"></div>
+</section>
+
+<section id="monthly">
+  <span class="eyebrow">Month by month</span>
+  <h2>Every month, 6 lots</h2>
+  <figure class="fig">
+    <div class="legend"><span><span class="sw c6"></span>6 lots</span><span><span class="sw c1"></span>1 lot</span></div>
+    <div class="tabs" role="tablist" id="m-tabs"></div>
+    <div id="mchart"></div>
+    <div class="tbl" style="border:0"><table><thead><tr><th>Month</th><th class="r">Trades</th><th class="r">Wins</th><th class="r">Net · 6 lots</th><th class="r">Net · 1 lot</th><th class="r">Costs · 6 lots</th></tr></thead><tbody id="mtable"></tbody><tfoot id="mfoot"></tfoot></table></div>
+  </figure>
+</section>
+
+<section id="robust">
+  <span class="eyebrow">Stress tests</span>
+  <h2>Does it survive worse assumptions?</h2>
+  <p id="rob-intro"></p>
+  <div class="two">
+    <figure class="fig"><h3>Option-decay model</h3><div class="tbl" style="border:0"><table><thead><tr><th>Model</th><th class="r">2025–26 net</th><th class="r">PF</th></tr></thead><tbody id="clocks"></tbody></table></div><figcaption>Calendar time is the most pessimistic model. It under-counts intraday decay by about 12–30 points per option per day against real prices.</figcaption></figure>
+    <figure class="fig"><h3>Slippage per leg per side</h3><div class="tbl" style="border:0"><table><thead><tr><th>Slippage</th><th class="r">2025–26 net</th><th class="r">PF</th></tr></thead><tbody id="slips"></tbody></table></div><figcaption>The default is 0.5 pt per leg per side, i.e. 2 pts per round trip on each of the 2 legs.</figcaption></figure>
+  </div>
+  <figure class="fig"><h3>Change one setting at a time</h3><div class="tbl" style="border:0"><table><thead><tr><th>Setting</th><th>Value</th><th class="r">2022–24 net</th><th class="r">2025–26 net</th></tr></thead><tbody id="nb"></tbody></table></div><figcaption>The chosen value is in bold. A sound strategy shouldn’t collapse when one setting moves a step.</figcaption></figure>
+  <div class="two">
+    <figure class="fig"><h3>Expiry day vs other days</h3><div class="tbl" style="border:0"><table><thead><tr><th>Days</th><th class="r">Trades</th><th class="r">Net · 6 lots</th><th class="r">Avg / trade</th></tr></thead><tbody id="split"></tbody></table></div></figure>
+    <figure class="fig"><h3>Bullish vs bearish trades</h3><div class="tbl" style="border:0"><table><thead><tr><th>Side</th><th class="r">Trades</th><th class="r">Win %</th><th class="r">Net · 6 lots</th></tr></thead><tbody id="sides"></tbody></table></div></figure>
+  </div>
+  <figure class="fig"><h3>Top 20 setups by 2022–24 score, and how they did on 2025–26</h3><div class="tbl" style="border:0"><table><thead><tr><th>Trigger</th><th>Bias</th><th class="r">SL</th><th>Exit</th><th class="r">Strike</th><th class="r">Hedge</th><th>Start</th><th>Expiry day</th><th class="r">2022–24</th><th class="r">2025–26</th></tr></thead><tbody id="top20"></tbody></table></div></figure>
+</section>
+
+<section id="capital">
+  <span class="eyebrow">Sizing</span>
+  <h2>Lots and capital</h2>
+  <div class="tbl"><table><thead><tr><th>Lots</th><th class="r">2022–24 net</th><th class="r">2025–26 net</th><th class="r">2025–26 max DD</th></tr></thead><tbody id="lots"></tbody></table></div>
+  <div class="stats" id="margin"></div>
+  <div class="note" id="capnote"></div>
+</section>
+
+<section id="setup">
+  <span class="eyebrow">Build it</span>
+  <h2>Setting it up in an algo builder</h2>
+  <p>These are mock-ups of the fields most no-code options builders ask for, not screenshots of a real platform. Platforms that can’t read weekly or daily candle colour directly usually let you compare the current price with the week’s and day’s opening price, which is the same thing.</p>
+  <div class="steps" id="steps"></div>
+</section>
+
+<section id="why">
+  <span class="eyebrow">What changed</span>
+  <h2>Why this version works when the earlier ones didn’t</h2>
+  <ul id="why-list" style="margin:0;padding-left:20px;display:grid;gap:8px;max-width:72ch"></ul>
+  <div class="tbl"><table><thead><tr><th>Option-decay model</th><th class="r">Avg error / option / day</th><th class="r">Avg absolute error</th></tr></thead><tbody id="calib"></tbody></table></div>
+</section>
+
+<section id="trades">
+  <span class="eyebrow">Audit</span>
+  <h2>Last 25 trades</h2>
+  <div class="tbl"><table><thead><tr><th>Entry</th><th>Exit</th><th>Spread</th><th class="r">Sold / hedge</th><th class="r">Nifty in → out</th><th class="r">Credit</th><th class="r">Close cost</th><th class="r">Net · 6 lots</th><th>Reason</th></tr></thead><tbody id="last"></tbody></table></div>
+</section>
+
+<section id="limits">
+  <span class="eyebrow">Read before trading</span>
+  <h2>Limits of this test</h2>
+  <ul id="limits" style="margin:0;padding-left:20px;display:grid;gap:6px;max-width:72ch"></ul>
+  <pre>python fetch_upstox.py 2022-01-01 2026-11-18   # Nifty 5m candles (save as data/nifty_5m_5y.csv) + VIX
+python fetch_bhav.py                            # NSE bhavcopies → real option premiums
+python calibrate.py                             # which decay model matches real prices
+python run_v3.py mix70v                         # 9,600 setups, 2022–26
+python select_v3.py mix70v                      # pick on 2022–24, test on 2025–26
+python build_report_v3.py mix70v                # this page</pre>
+</section>
+</div>
+
+<script>
+/*__CHARTS__*/
+/*__DATA__*/
+</script>
+<script>
+(function () {
+  const $ = (q) => document.querySelector(q);
+  const S = D.sel, P = S.params, LOT = 65, LOTS = 6;
+  const cls = (v) => (v > 0 ? "good" : v < 0 ? "bad" : "");
+  const lab = (n) => (n === 0 ? "ATM" : n > 0 ? `ATM+${n}` : `ATM−${-n}`);
+  const strike = (o) => (o > 0 ? `${o} pts ITM` : o < 0 ? `${-o} pts OTM` : "ATM");
+  const trig = { st: "Supertrend (10, 3) in trade direction", st_ema: "Supertrend + EMA 9/21", ema_macd: "EMA 9/21 + MACD", all3: "Supertrend + EMA 9/21 + MACD" }[P.sigset];
+  const biasName = { none: "none", live: "week + today", prev: "last week + yesterday", wlive_dlive_prevday: "week + today + yesterday", wprev_dlive: "last week + today" };
+  const exitName = { fixed: `fixed target at ${P.sl * 2} pts (1:2)`, trail: "trail after +1R", hold: "no target, hold until 14:45", be: "SL to cost at +1R" };
+  const tr = S.train, te = S.test;
+  const months = S.monthly;
+  const test = months.filter((m) => m.month >= "2025-01");
+  const upTest = test.filter((m) => m.net6 > 0).length;
+
+  /* verdict */
+  $("#v-title").textContent = te.net > 0 && tr.net > 0 ? "Profitable after every cost, both in the years used to build it and in the two years it never saw." : "Not reliably profitable.";
+  $("#v-list").innerHTML = [
+    `<b>2022–2024</b> (used to choose the settings): ${fmtR(tr.net)} at 6 lots over ${tr.n} trades, profit factor ${tr.pf}, worst drawdown ${fmtR(tr.dd)}.`,
+    `<b>2025 – Nov 2026</b> (never looked at while choosing): <b>${fmtR(te.net)}</b> over ${te.n} trades, profit factor ${te.pf}, worst drawdown ${fmtR(te.dd)}. ${upTest} of ${test.length} months were positive.`,
+    `It is <b>selective</b>: about ${Math.round((tr.n + te.n) / (D.sessions / 21))} trades a month on average, and no trade at all on days when the weekly and daily candles disagree.`,
+    `<b>Robust, not a lucky pick:</b> all of the top 20 setups by 2022–24 score were also profitable in 2025–26 (${S.top20_test_pos} of 20). So were ${S.pass_test_pos} of the ${S.n_pass} setups that passed the 2022–24 filter. It stays profitable with double the slippage and with the most pessimistic decay model.`,
+    `<b>Main risks:</b> about ${D.split.expiry ? Math.round(100 * D.split.expiry.net / (D.split.expiry.net + D.split.other.net)) : 0}% of the profit comes from expiry-day trades, which need about 1.6× the margin. Losing runs of ${fmtR(Math.min(tr.dd, te.dd))} happened. Option prices are modelled from real closing premiums, not tick-by-tick quotes.`,
+  ].map((x) => `<li>${x}</li>`).join("");
+  $("#kpis").innerHTML = [["2025–26 net · 6 lots", fmtR(te.net)], ["2022–24 net · 6 lots", fmtR(tr.net)], ["Profit factor (2025–26)", te.pf], ["Max drawdown (2025–26)", fmtR(te.dd)], ["Trades / month", (te.n / test.length).toFixed(1)]]
+    .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
+
+  /* rules */
+  const useY = P.bias === "wlive_dlive_prevday";
+  const biasLong = useY ? "This week, today and yesterday candles" : "This week and today candles";
+  $("#lede").innerHTML = `This version only trades when ${useY ? "this week’s, today’s and yesterday’s candles" : "this week’s and today’s candles"} agree. On those days it sells a hedged spread in that direction on a 15-minute ${trig} signal, then holds it until 14:45 unless the stop is hit. All results are after brokerage, STT, exchange charges, SEBI fee, stamp duty, GST and slippage. Every option leg is priced from real NSE closing premiums.`;
+  const mrows = useY
+    ? [["Green", "Green", "Green", "go-b", "Bullish only"], ["Red", "Red", "Red", "go-s", "Bearish only"], ["Green", "Red", "any", "skip", "No trade"], ["Red", "Green", "any", "skip", "No trade"], ["Green", "Green", "Red", "skip", "No trade"], ["Red", "Red", "Green", "skip", "No trade"]]
+    : [["Green", "Green", null, "go-b", "Bullish only"], ["Red", "Red", null, "go-s", "Bearish only"], ["Green", "Red", null, "skip", "No trade"], ["Red", "Green", null, "skip", "No trade"]];
+  $("#matrix").innerHTML = `<thead><tr><th>This week</th><th>Today</th>${useY ? "<th>Yesterday</th>" : ""}<th>Action</th></tr></thead><tbody>` +
+    mrows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td>${useY ? `<td>${r[2]}</td>` : ""}<td class="${r[3]}">${r[4]}</td></tr>`).join("") + "</tbody>";
+  const ema = P.sigset.includes("ema") || P.sigset === "all3", mac = P.sigset.includes("macd") || P.sigset === "all3", st = P.sigset.startsWith("st") || P.sigset === "all3";
+  $("#trigger").innerHTML = [
+    ema ? "Bullish: close above EMA 21 and EMA 9 above EMA 21 (bearish: both below)" : null,
+    mac ? "Bullish: MACD (12, 26, 9) line above its signal line (bearish: below)" : null,
+    st ? "Supertrend (10, 3) on the trade side" : null,
+    "Step 1 direction agrees, and all of this has just become true on this candle",
+    `Signal candle closes between ${P.start} and 13:30; order goes at the next candle open`,
+    "Only one trade per day",
+  ].filter(Boolean).map((x) => `<li>${x}</li>`).join("");
+  const sp = P.short_offset, hd = P.hedge;
+  $("#position").innerHTML = [
+    `Bullish → <b>bull put spread</b>: BUY PE at ${lab(sp - hd)}, then SELL PE at ${lab(sp)} (sold put is ${strike(sp)})`,
+    `Bearish → <b>bear call spread</b>: BUY CE at ${lab(hd - sp)}, then SELL CE at ${lab(-sp)} (sold call is ${strike(sp)})`,
+    `Hedge ${hd} pts from the sold strike. Nearest weekly expiry${P.dte0 ? ", <b>including on expiry day itself</b>" : "; on expiry day use next week"}`,
+    `Size: ${LOTS} lots (${LOTS * LOT} qty per leg). Brokerage is per order, so bigger size cuts cost per lot`,
+  ].map((x) => `<li>${x}</li>`).join("");
+  $("#exit").innerHTML = [
+    `<b>Stop-loss: ${P.sl} Nifty points</b> against the entry price → exit both legs`,
+    `<b>Profit: ${exitName[P.exit_mode]}</b>. The spread earns from direction and time decay through the day`,
+    "<b>Time exit 14:45</b>: square off everything, before the broker’s MIS cut-off",
+    "Exit order: buy back the SOLD leg first, then sell the hedge",
+  ].map((x) => `<li>${x}</li>`).join("");
+
+  /* flow diagram */
+  (function () {
+    const svg = $("#flow");
+    const box = (x, y, w, h, cl, t1, t2) => {
+      el("rect", { x, y, width: w, height: h, rx: 8, class: cl }, svg);
+      el("text", { x: x + w / 2, y: y + (t2 ? h / 2 - 3 : h / 2 + 4), "text-anchor": "middle", class: "d-t" }, svg).textContent = t1;
+      if (t2) el("text", { x: x + w / 2, y: y + h / 2 + 15, "text-anchor": "middle", class: "d-s" }, svg).textContent = t2;
+    };
+    const arrow = (d, dash) => el("path", { d, class: dash ? "d-arrow-dash" : "d-arrow", "marker-end": "url(#ah2)" }, svg);
+    const defs = el("defs", {}, svg); const mk = el("marker", { id: "ah2", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs); el("path", { d: "M0,0 L10,5 L0,10 z", class: "d-head" }, mk);
+    box(250, 10, 260, 46, "d-box", "15-minute candle closes", `${P.start}–13:30, no trade yet today`);
+    arrow("M380,56 V82");
+    box(150, 84, 460, 56, "d-acc", `${biasLong}: same colour?`, "all green → bullish only · all red → bearish only");
+    arrow("M610,112 H690 V33 H514", true); el("text", { x: 618, y: 104, class: "d-s" }, svg).textContent = "mixed → skip";
+    arrow("M380,140 V166");
+    box(150, 168, 460, 56, "d-acc", `Trigger: ${trig}`, "just turned true in the same direction");
+    arrow("M610,196 H690 V33", true); el("text", { x: 618, y: 188, class: "d-s" }, svg).textContent = "no → wait";
+    arrow("M260,224 L150,262"); arrow("M500,224 L610,262");
+    box(20, 264, 250, 70, "d-bull", "Bull put spread", `BUY PE ${lab(sp - hd)} · SELL PE ${lab(sp)}`);
+    box(490, 264, 250, 70, "d-bear", "Bear call spread", `BUY CE ${lab(hd - sp)} · SELL CE ${lab(-sp)}`);
+    arrow("M145,334 V372 H300"); arrow("M615,334 V372 H460");
+    el("rect", { x: 160, y: 350, width: 440, height: 96, rx: 8, class: "d-warn" }, svg);
+    el("text", { x: 380, y: 378, "text-anchor": "middle", class: "d-t" }, svg).textContent = `Stop-loss ${P.sl} Nifty points against entry`;
+    el("text", { x: 380, y: 404, "text-anchor": "middle", class: "d-s" }, svg).textContent = P.exit_mode === "hold" ? "No profit target: let time decay and trend work" : exitName[P.exit_mode];
+    el("text", { x: 380, y: 424, "text-anchor": "middle", class: "d-s" }, svg).textContent = "Hard exit 14:45 (MIS)";
+    arrow("M380,446 V474");
+    box(220, 476, 320, 54, "d-box", "Exit: buy back sold leg,", "then sell the hedge");
+  })();
+
+  /* results */
+  $("#res-intro").innerHTML = `Real Nifty 50 5-minute candles from ${D.first} to ${D.last_day} (${D.sessions} sessions), traded on 15-minute candles. Each option leg is priced from that exact contract’s NSE closing premium the day before. That gives its real implied volatility and skew. Intraday decay is calibrated against ${D.calibration.n.toLocaleString("en-IN")} real option-days, and volatility moves intraday with India VIX. Real expiry dates are used, including holiday shifts. Costs per trade: ₹20 × 4 orders, 0.1% STT on sold premium, NSE charges, SEBI fee, stamp duty, 18% GST, and 0.5 pt slippage per leg per side. All ${D.combos.toLocaleString("en-IN")} setups were tested. The settings were picked on 2022–24 only.`;
+  const row = (n, s) => `<tr><td>${n}</td><td class="r">${s.n}</td><td class="r">${s.win}%</td><td class="r">${s.pf}</td><td class="r ${cls(s.net)}">${fmtR(s.net)}</td><td class="r ${cls(s.net1)}">${fmtR(s.net1)}</td><td class="r">${fmtR(s.dd)}</td></tr>`;
+  $("#tt").innerHTML = row("2022–2024 · used to choose", tr) + row("2025 – Nov 2026 · never seen", te);
+  lineChart($("#equity"), [{ name: "6 lots", cls: "eq", values: D.equity }], { oosLabel: D.equity.find((e) => e.label === "Jan 25") ? "Jan 25" : null });
+  $("#years").innerHTML = Object.entries(S.years).map(([y, v]) => `<tr><td>${y}${y >= 2025 ? " · test" : ""}</td><td class="r ${cls(v)}">${fmtR(v)}</td></tr>`).join("");
+
+  if (S.strict) {
+    const x = S.strict, xp = x.params;
+    $("#strict").innerHTML = `<b>Want fewer trades?</b> Use the stricter filter: week, today <i>and</i> yesterday must all agree, with ${({ st: "Supertrend only", all3: "all three indicators", ema_macd: "EMA + MACD", st_ema: "Supertrend + EMA" })[xp.sigset]} as the trigger, SL ${xp.sl}, ${strike(+xp.short_offset)}, hedge ${xp.hedge}, hold to 14:45. That is about ${(((x.tr_n + x.te_n) / D.sessions) * 5).toFixed(1)} trades a week instead of ${(((tr.n + te.n) / D.sessions) * 5).toFixed(1)}. Results at 6 lots: 2022–24 ${fmtR(x.tr_net)} (PF ${x.tr_pf}); 2025–26 <b>${fmtR(x.te_net)}</b> (PF ${x.te_pf}, max drawdown ${fmtR(x.te_dd)}). It was picked by the same rule from the stricter-filter setups only.`;
+  } else $("#strict").hidden = true;
+  const q = S.pass_test_quantiles || {}, t1 = S.top1 || {};
+  $("#pickrule").innerHTML = `<b>How the settings were picked.</b> ${S.n_pass} of ${S.combos.toLocaleString("en-IN")} setups were profitable in each of 2022, 2023 and 2024 with profit factor ≥ 1.15. The recommended setup takes the most common value of each setting among those ${S.n_pass}, using no 2025–26 data. On 2025–26, ${S.pass_test_pos} of the ${S.n_pass} were profitable: the middle one made ${fmtR(q["0.5"] || 0)}, and the bottom 10% still made ${fmtR(q["0.1"] || 0)}. A single “top score” pick would have been the 120-point Supertrend-only setup starting at 10:15. It made just ${fmtR(t1.te_net || 0)} on 2025–26, which is why one lucky number isn’t trusted here.`;
+
+  /* monthly */
+  const tabs = $("#m-tabs");
+  const views = { test: ["2025–26 (test)", (m) => m.month >= "2025-01"], last12: ["Last 12 months", (m) => m.month >= months[months.length - 12].month], all: ["All 5 years", () => true] };
+  function show(k) {
+    [...tabs.children].forEach((b) => b.setAttribute("aria-selected", b.dataset.k === k ? "true" : "false"));
+    const rows = months.filter(views[k][1]);
+    monthBars($("#mchart"), rows, [{ key: "net6", name: "6 lots", cls: "c6" }, { key: "net1", name: "1 lot", cls: "c1" }]);
+    $("#mtable").innerHTML = rows.map((r) => `<tr><td>${new Date(r.month + "-01").toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</td><td class="r">${r.trades}</td><td class="r">${r.wins}</td><td class="r ${cls(r.net6)}">${fmtR(r.net6)}</td><td class="r ${cls(r.net1)}">${fmtR(r.net1)}</td><td class="r">${fmtR(-r.costs6)}</td></tr>`).join("");
+    const t = (key) => rows.reduce((a, r) => a + r[key], 0);
+    $("#mfoot").innerHTML = `<tr style="font-weight:600"><td>Total · ${rows.filter((r) => r.net6 > 0).length}/${rows.length} months up</td><td class="r">${t("trades")}</td><td class="r">${t("wins")}</td><td class="r ${cls(t("net6"))}">${fmtR(t("net6"))}</td><td class="r ${cls(t("net1"))}">${fmtR(t("net1"))}</td><td class="r">${fmtR(-t("costs6"))}</td></tr>`;
+  }
+  Object.entries(views).forEach(([k, [n]]) => { const b = document.createElement("button"); b.textContent = n; b.dataset.k = k; b.id = `m-tab-${k}`; b.setAttribute("role", "tab"); b.onclick = () => show(k); tabs.appendChild(b); });
+  show("last12");
+
+  /* robustness */
+  $("#rob-intro").textContent = "Each row changes one assumption and keeps the same rules. Figures are 2025–26 at 6 lots.";
+  const clockName = { calv: "Calendar time + VIX (pessimistic)", mix60v: "60% trading / 40% calendar + VIX", mix70: "70/30 blend, IV fixed intraday", mix70v: "70/30 blend + VIX (used)", mix80v: "80/20 blend + VIX", trdv: "Trading time + VIX (optimistic)" };
+  $("#clocks").innerHTML = Object.entries(S.stress).filter(([k]) => clockName[k]).map(([k, v]) => `<tr${k === D.conv ? ' style="font-weight:600"' : ""}><td>${clockName[k]}</td><td class="r ${cls(v.test.net)}">${fmtR(v.test.net)}</td><td class="r">${v.test.pf}</td></tr>`).join("");
+  const slipRows = [["0.25 pt", S.stress["slip0.25"]], ["0.5 pt (used)", { test: S.test }], ["0.75 pt", S.stress["slip0.75"]], ["1.0 pt", S.stress["slip1.0"]]];
+  $("#slips").innerHTML = slipRows.map(([n, v]) => `<tr><td>${n}</td><td class="r ${cls(v.test.net)}">${fmtR(v.test.net)}</td><td class="r">${v.test.pf}</td></tr>`).join("");
+  const nbName = { sl: "Stop-loss (pts)", exit_mode: "Exit", short_offset: "Strike sold", hedge: "Hedge (pts)", start: "Earliest signal", dte0: "Trade on expiry day", bias: "Bias filter", sigset: "Trigger" };
+  const fmtVal = (k, v) => k === "short_offset" ? strike(+v) : k === "bias" ? biasName[v] || v : k === "dte0" ? (v === "True" ? "yes" : "no") : k === "exit_mode" ? ({ fixed: "1:2 target", trail: "trail", hold: "hold to 14:45" }[v] || v) : k === "sigset" ? ({ st: "Supertrend", st_ema: "Supertrend + EMA", ema_macd: "EMA + MACD", all3: "Supertrend + EMA + MACD" }[v] || v) : v;
+  let last = ""; $("#nb").innerHTML = S.neighbours.map((r) => { const h = r.changed !== last ? nbName[r.changed] : ""; last = r.changed; return `<tr${r.chosen ? ' style="font-weight:600"' : ""}><td>${h}</td><td>${fmtVal(r.changed, r.value)}</td><td class="r ${cls(r.tr_net)}">${fmtR(r.tr_net)}</td><td class="r ${cls(r.te_net)}">${fmtR(r.te_net)}</td></tr>`; }).join("");
+  $("#split").innerHTML = Object.entries(D.split).map(([k, v]) => `<tr><td>${k === "expiry" ? "Expiry day" : "Other days"}</td><td class="r">${v.n}</td><td class="r ${cls(v.net)}">${fmtR(v.net)}</td><td class="r ${cls(v.avg)}">${fmtR(v.avg)}</td></tr>`).join("");
+  $("#sides").innerHTML = Object.entries(D.sides).map(([k, v]) => `<tr><td>${k}</td><td class="r">${v.n}</td><td class="r">${v.win}%</td><td class="r ${cls(v.net)}">${fmtR(v.net)}</td></tr>`).join("");
+  const trigShort = { st: "ST", st_ema: "ST+EMA", ema_macd: "EMA+MACD", all3: "ST+EMA+MACD" };
+  $("#top20").innerHTML = S.top20.map((r, i) => `<tr${i === 0 ? ' style="font-weight:600"' : ""}><td>${trigShort[r.sigset]}</td><td>${biasName[r.bias] || r.bias}</td><td class="r">${r.sl}</td><td>${fmtVal("exit_mode", r.exit_mode)}</td><td class="r">${strike(r.short_offset)}</td><td class="r">${r.hedge}</td><td>${r.start}</td><td>${r.dte0 ? "yes" : "no"}</td><td class="r ${cls(r.tr_net)}">${fmtR(r.tr_net)}</td><td class="r ${cls(r.te_net)}">${fmtR(r.te_net)}</td></tr>`).join("");
+
+  /* lots & capital */
+  $("#lots").innerHTML = Object.entries(S.lots).map(([n, v]) => `<tr${+n === LOTS ? ' style="font-weight:600"' : ""}><td>${n} lot${n > 1 ? "s" : ""}</td><td class="r ${cls(v.all.net - v.test.net)}">${fmtR(v.all.net - v.test.net)}</td><td class="r ${cls(v.test.net)}">${fmtR(v.test.net)}</td><td class="r">${fmtR(v.test.dd)}</td></tr>`).join("");
+  const notional = D.last_close * LOT * LOTS;
+  const normal = notional * 0.02 + hd * LOT * LOTS, expiry = normal + notional * 0.02;
+  $("#margin").innerHTML = [["Margin, normal day (est.)", fmtR(normal)], ["Margin, expiry day (est.)", fmtR(expiry)], ["Avg loss when SL hits", fmtR(S.avg_sl_loss6)], ["Worst single trade", fmtR(S.worst6)], ["Worst drawdown", fmtR(Math.min(tr.dd, te.dd))]]
+    .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
+  $("#capnote").innerHTML = `<b>Recommendation:</b> 6 lots needs about ${fmtR(normal)} margin on normal days and about ${fmtR(expiry)} on expiry day, because SEBI adds 2% exposure margin on short options expiring that day. Add the worst drawdown (${fmtR(Math.min(tr.dd, te.dd))}), and keep <b>about ₹6.5–7 lakh</b> to run 6 lots comfortably. With about ₹3.5 lakh, run <b>3 lots</b>: profit and drawdown are roughly half of the 6-lot figures. Start with 1–2 lots for the first month to check that your fills match the 0.5 pt slippage assumption.`;
+
+  /* builder */
+  const steps = [
+    ["Chart & timeframe", `<div class="field"><span>Signal chart</span><span class="in">NIFTY 50 spot</span></div><div class="field"><span>Timeframe</span><span class="in">15 minute</span></div><div class="field"><span>Trade in</span><span class="in">NIFTY weekly options</span></div><div class="field"><span>Expiry</span><span class="in">Nearest weekly${P.dte0 ? " (incl. expiry day)" : ""}</span></div><div class="field"><span>Product</span><span class="in">MIS</span></div>`],
+    ["Bias (day filter)", `<div class="cond">LTP &gt; Week open<span class="and">AND</span></div><div class="cond">LTP &gt; Day open${useY ? '<span class="and">AND</span>' : ""}</div>${useY ? '<div class="cond">Prev day close &gt; Prev day open</div>' : ""}<div class="cap">Bearish: all reversed (LTP below both opens). Otherwise no trade.</div>`],
+    ["Trigger · bullish", [ema ? `<div class="cond">Close &gt; EMA(21) · EMA(9) &gt; EMA(21)<span class="and">AND</span></div>` : "", mac ? `<div class="cond">MACD(12,26,9) &gt; Signal<span class="and">AND</span></div>` : "", st ? `<div class="cond">Close &gt; Supertrend(10,3)<span class="and">AND</span></div>` : "", `<div class="cond">Time ${P.start} – 13:30 · max 1 trade/day</div>`].join("")],
+    ["Legs · bullish", `<div class="cond"><span class="pill acc">Leg 1</span>BUY PE · ${lab(sp - hd)} · ${LOTS * LOT}</div><div class="cond"><span class="pill bear">Leg 2</span>SELL PE · ${lab(sp)} · ${LOTS * LOT}</div><div class="cap">Hedge first. Limit orders.</div>`],
+    ["Legs · bearish", `<div class="cond"><span class="pill acc">Leg 1</span>BUY CE · ${lab(hd - sp)} · ${LOTS * LOT}</div><div class="cond"><span class="pill bear">Leg 2</span>SELL CE · ${lab(-sp)} · ${LOTS * LOT}</div><div class="cap">Bearish trigger = all conditions reversed.</div>`],
+    ["Exit", `<div class="field"><span>Stop-loss</span><span class="in">${P.sl} pts on NIFTY spot</span></div><div class="field"><span>Target</span><span class="in">${P.exit_mode === "hold" ? "None" : exitName[P.exit_mode]}</span></div><div class="field"><span>Square-off</span><span class="in">14:45</span></div><div class="field"><span>Daily loss cap</span><span class="in">1 trade/day = 1 SL max</span></div>`],
+  ];
+  $("#steps").innerHTML = steps.map(([t, b], i) => `<div class="screen"><div class="bar"><span class="n">${i + 1}</span>${t}</div><div class="body">${b}</div></div>`).join("");
+
+  /* why */
+  const H = D.history, C = D.calibration.errs;
+  const offTxt = sp === 0 ? "Sell ATM" : sp > 0 ? `Sell ${sp} pts ITM` : `Sell ${-sp} pts OTM`;
+  $("#why-list").innerHTML = [
+    `<b>Real option prices instead of a VIX guess.</b> Earlier versions priced options from India VIX and calendar time. Checked against ${D.calibration.n.toLocaleString("en-IN")} real option-days from NSE bhavcopies, that model under-counted intraday decay by about ${C.cal.mean} points per option per day, which made every seller strategy look worse than it is. This version prices each leg from its real premium and decays it the way real prices do.`,
+    `<b>Trade only when the bigger candles agree.</b> Your weekly/daily idea was the most helpful filter. Requiring ${useY ? "this week, today and yesterday" : "this week and today"} to point the same way removes most of the chop. Without any filter, the same rules lost ${fmtR(Math.abs((S.neighbours.find((r) => r.changed === "bias" && r.value === "none") || {}).tr_net || 0))} in 2022–24.`,
+    `<b>${offTxt}, hedge ${hd} pts away, and hold until 14:45.</b> The wider hedge lets the spread gain more per Nifty point. Holding until the time exit, instead of booking at a fixed target, lets time decay keep working on the days the direction is right.`,
+    `<b>Wide ${P.sl}-point stop.</b> Tight stops (30–45 pts) got hit by normal intraday noise. A wider stop is hit less often (${S.reasons.sl || 0} of ${(S.reasons.sl || 0) + (S.reasons.time || 0) + (S.reasons.target || 0)} trades), and the hedge still caps the worst case.`,
+    `<b>Expiry day included.</b> Time decay is fastest on expiry day, and with a hedge the risk stays capped. This is where the biggest average wins come from.`,
+    `<b>Your three indicators stay.</b> ${trig} on 15-minute candles is the trigger that the most passing setups agreed on.`,
+    H.year ? `<b>Earlier results, for reference:</b> the first rule set lost money at 1 and 4 lots over the last year (fixed setup ${fmtR(H.year.fixed_net4)} at 4 lots). The weekly/daily filter version priced with the old VIX model (v2) was profitable in both halves in only ${H.v2 ? H.v2.pct_both : "–"}% of ${H.v2 ? H.v2.combos.toLocaleString("en-IN") : "–"} setups.` : "",
+  ].filter(Boolean).map((x) => `<li>${x}</li>`).join("");
+  const cn = { cal: "Calendar time (old)", trd: "Trading time", mix70: "70/30 blend", mix70v: "70/30 blend + VIX (used)" };
+  $("#calib").innerHTML = Object.entries(C).map(([k, v]) => `<tr${k === D.conv ? ' style="font-weight:600"' : ""}><td>${cn[k]}</td><td class="r">${v.mean > 0 ? "+" : ""}${v.mean}</td><td class="r">${v.mae}</td></tr>`).join("");
+
+  /* trades */
+  $("#last").innerHTML = D.last.map((t) => `<tr><td>${t.entry_ts}</td><td>${t.exit_ts}</td><td>${t.side}</td><td class="r">${t.short_strike} / ${t.hedge_strike}</td><td class="r">${Math.round(t.spot_in)} → ${Math.round(t.spot_out)}</td><td class="r">${(+t.credit).toFixed(1)}</td><td class="r">${(+t.close_cost).toFixed(1)}</td><td class="r ${cls(t.net)}">${fmtR(t.net)}</td><td>${t.reason}</td></tr>`).join("");
+
+  /* limits */
+  $("#limits").innerHTML = [
+    "<b>Modelled intraday premiums.</b> Each leg starts from its real previous-day closing premium, and the model is calibrated against real prices. But intraday quotes are still modelled, not recorded tick data. Before going live, confirm on a platform that replays real intraday option prices, or paper-trade for 4–8 weeks.",
+    "<b>Expiry-day dependence.</b> A large share of the profit comes from expiry days. If SEBI changes weekly expiries again (it has done so twice since 2023), re-test.",
+    "<b>Fills.</b> The test assumes 0.5 pt slippage per leg per side on 390 qty. Use limit orders. If your average slippage is above 1 pt, the edge mostly disappears.",
+    "<b>Stops use spot candles.</b> The stop fires on the Nifty spot price. On a fast gap the exit can be worse than the stop level. The test fills at the candle open when price gaps through.",
+    "<b>Lot size.</b> 65 is used for all years so results are comparable. Real lot sizes were 50, 25 and 75 earlier.",
+    "<b>Risk.</b> SEBI found about 9 in 10 individual F&amp;O traders lost money in FY22–FY24. Past results don’t guarantee future ones. This is research, not investment advice.",
+  ].map((x) => `<li>${x}</li>`).join("");
+})();
+</script>

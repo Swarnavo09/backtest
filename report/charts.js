@@ -33,7 +33,7 @@ function tooltip(host) {
 /* Cumulative-equity line chart. series: [{name, cls, values:[{label, y}]}] */
 function lineChart(host, series, { height = 300, oosLabel = null, yFmt = fmtR } = {}) {
   host.classList.add("chart");
-  const W = 760, H = height, m = { l: 64, r: 16, t: 14, b: 30 };
+  const W = 760, H = height, m = { l: 84, r: 16, t: 14, b: 30 };
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, host);
   const n = Math.max(...series.map((s) => s.values.length));
   const ys = series.flatMap((s) => s.values.map((v) => v.y)).concat([0]);
