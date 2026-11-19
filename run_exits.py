@@ -39,7 +39,7 @@ def exit_arrays(df, name):
     raise ValueError(name)
 
 
-def simulate(df, tr, p, ex_long, ex_short, loss):
+def simulate(df, tr, p, ex_long, ex_short, loss, target=None):
     q = S.LOT_SIZE * p.lots
     idx = df.index
     pos = {t: i for i, t in enumerate(idx)}
@@ -64,6 +64,12 @@ def simulate(df, tr, p, ex_long, ex_short, loss):
                 exit_v, reason = val(O[i], ts), "sl"; break
             if mtm(val(worst, ts)) <= -loss:
                 exit_v, reason = (t.credit + loss / q, 0.0), "sl"; break
+            if target is not None:
+                best = H[i] if side == 1 else L[i]
+                if mtm(val(O[i], ts)) >= target:
+                    exit_v, reason = val(O[i], ts), "target"; break
+                if mtm(val(best, ts)) >= target:
+                    exit_v, reason = (t.credit - target / q, 0.0), "target"; break
             if exc[i] and i + 1 < len(idx) and idx[i + 1].date() == ts.date():   # signal at close -> exit next open
                 exit_v, reason = val(O[i + 1], idx[i + 1]), "exit_rule"; break
             i += 1
