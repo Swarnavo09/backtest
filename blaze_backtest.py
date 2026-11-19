@@ -227,7 +227,7 @@ def run(days: dict[dt.date, pd.DataFrame], margin_set: float, lots: int,
                 break
             exit_day, exit_reason, pnl = d, "FRIDAY EXIT", mtm
         if exit_reason == "FRIDAY EXIT" and exit_day.weekday() != 4:
-            exit_reason = "WEEK-END EXIT"
+            exit_reason = "OPEN (MTM)" if friday >= dt.date.today() else "WEEK-END EXIT"
 
         ch = 0.0
         if costs:
@@ -255,7 +255,7 @@ def run(days: dict[dt.date, pd.DataFrame], margin_set: float, lots: int,
 # Reporting
 # --------------------------------------------------------------------------
 def summarise(trades: pd.DataFrame, key: str) -> pd.DataFrame:
-    t = trades[trades["status"] != "SKIP"].copy()
+    t = trades[~trades["status"].isin(["SKIP", "OPEN (MTM)"])].copy()
     if t.empty:
         return pd.DataFrame()
     t["entry_date"] = pd.to_datetime(t["entry_date"])
