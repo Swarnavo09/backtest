@@ -134,21 +134,25 @@ def backtest(df, p):
         if pos:  # manage open position on this bar
             side, entry, sl, tp_ = pos["side"], pos["entry"], pos["sl"], pos["tp"]
             ex = None
-            hit_sl = (l[i] <= sl) if side == 1 else (h[i] >= sl)
-            hit_tp = (h[i] >= tp_) if side == 1 else (l[i] <= tp_)
+            if p.get("close_only"):   # platform checks SL/TP/MTM only at candle close
+                h_, l_ = (c[i], c[i])
+            else:
+                h_, l_ = (h[i], l[i])
+            hit_sl = (l_ <= sl) if side == 1 else (h_ >= sl)
+            hit_tp = (h_ >= tp_) if side == 1 else (l_ <= tp_)
             gap_sl = (o[i] <= sl) if side == 1 else (o[i] >= sl)   # overnight/bar gap through SL
             gap_tp = (o[i] >= tp_) if side == 1 else (o[i] <= tp_)
             if gap_sl: ex = (o[i], "SL")
             elif gap_tp: ex = (o[i], "TP")
             elif hit_sl and hit_tp: ex = (tp_, "TP") if p.get("tp_first") else (sl, "SL")  # default: SL first
-            elif hit_sl: ex = (sl, "SL")
-            elif hit_tp: ex = (tp_, "TP")
+            elif hit_sl: ex = (c[i] if p.get("close_only") else sl, "SL")
+            elif hit_tp: ex = (c[i] if p.get("close_only") else tp_, "TP")
             if not ex and p.get("be") and not pos.get("be_done"):   # move SL to cost after +1R
                 fav = (h[i] - entry) if side == 1 else (entry - l[i])
                 if fav >= pos["risk"]:
                     pos["sl"] = entry + side * 2; pos["be_done"] = True
             if not ex:
-                fav = (h[i] - entry) if side == 1 else (entry - l[i])
+                fav = (h_ - entry) if side == 1 else (entry - l_)
                 pos["best"] = max(pos.get("best", 0), fav)
                 if p.get("be_at") and pos["best"] >= p["be_at"] * pos["risk"]:      # SL to cost (+2) after X R
                     pos["sl"] = max(pos["sl"], entry + 2) if side == 1 else min(pos["sl"], entry - 2)
