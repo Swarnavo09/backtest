@@ -147,6 +147,23 @@ def backtest(df, p):
                 fav = (h[i] - entry) if side == 1 else (entry - l[i])
                 if fav >= pos["risk"]:
                     pos["sl"] = entry + side * 2; pos["be_done"] = True
+            if not ex:
+                fav = (h[i] - entry) if side == 1 else (entry - l[i])
+                pos["best"] = max(pos.get("best", 0), fav)
+                if p.get("be_at") and pos["best"] >= p["be_at"] * pos["risk"]:      # SL to cost (+2) after X R
+                    pos["sl"] = max(pos["sl"], entry + 2) if side == 1 else min(pos["sl"], entry - 2)
+                if p.get("trail_pts") and pos["best"] >= p.get("trail_start", 1) * pos["risk"]:
+                    lvl = entry + side * (pos["best"] - p["trail_pts"])
+                    pos["sl"] = max(pos["sl"], lvl) if side == 1 else min(pos["sl"], lvl)
+                pos["bars"] = pos.get("bars", 0) + 1
+                if p.get("time_stop") and pos["bars"] >= p["time_stop"]:
+                    ex = (c[i], "TIME")
+                elif p.get("exit_ema") and ((side == 1 and df.e9.iat[i] < df.e21.iat[i]) or (side == -1 and df.e9.iat[i] > df.e21.iat[i])):
+                    ex = (c[i], "EMA")
+                elif p.get("exit_st") and ((side == 1 and c[i] < stl[i]) or (side == -1 and c[i] > stl[i])):
+                    ex = (c[i], "ST")
+                elif p.get("exit_vwap") and ((side == 1 and c[i] < df.vwap.iat[i]) or (side == -1 and c[i] > df.vwap.iat[i])):
+                    ex = (c[i], "VWAP")
             if not ex and p["sig_exit"] and ((side == 1 and h_exit_long.iat[i]) or (side == -1 and h_exit_short.iat[i])):
                 ex = (c[i], "SIG")
             if not ex and close_t >= p["sq_off"]:

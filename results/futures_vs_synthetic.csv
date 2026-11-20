@@ -1,0 +1,17 @@
+exit,instrument,trades,net_rs,pf,maxdd,cost_rs,cost_per_trade,rolls
+Base: SL50 / TP200,Futures,270,308233,1.38,-89558,160450,594,1
+Base: SL50 / TP200,Synthetic (monthly ATM),270,355169,1.45,-84116,113514,420,1
+Base: SL50 / TP200,Futures STT 0.05% stress,270,180080,1.2,-109356,288603,1069,1
+Base: SL50 / TP200,Synthetic STT 0.15% + 2pt slip/leg,270,280010,1.33,-93523,188673,699,1
+SL50 / TP250 (1:5),Futures,247,378868,1.49,-90262,147307,596,2
+SL50 / TP250 (1:5),Synthetic (monthly ATM),247,421895,1.57,-85761,104281,422,2
+SL50 / TP250 (1:5),Futures STT 0.05% stress,247,261251,1.3,-106913,264924,1073,2
+SL50 / TP250 (1:5),Synthetic STT 0.15% + 2pt slip/leg,247,352842,1.44,-93700,173333,702,2
++ Trail 100 after +100,Futures,280,322775,1.46,-83869,165886,592,0
++ Trail 100 after +100,Synthetic (monthly ATM),280,371360,1.55,-78343,117300,419,0
++ Trail 100 after +100,Futures STT 0.05% stress,280,190243,1.24,-99218,298418,1066,0
++ Trail 100 after +100,Synthetic STT 0.15% + 2pt slip/leg,280,293701,1.4,-87486,194960,696,0
+"No TP, trail 150 after +150",Futures,225,400131,1.62,-83943,133808,595,1
+"No TP, trail 150 after +150",Synthetic (monthly ATM),225,439274,1.71,-79075,94665,421,1
+"No TP, trail 150 after +150",Futures STT 0.05% stress,225,293255,1.4,-97876,240684,1070,1
+"No TP, trail 150 after +150",Synthetic STT 0.15% + 2pt slip/leg,225,376595,1.57,-87246,157344,699,1
