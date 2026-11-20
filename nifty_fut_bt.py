@@ -125,7 +125,7 @@ def backtest(df, p):
     o, h, l, c = df.Open.values, df.High.values, df.Low.values, df.Close.values
     a, stl = df.atr.values, df.st.values
     bar = p["bar_min"]
-    trades, pos, day_count, cur_day = [], None, 0, None
+    trades, pos, day_count, cur_day, cyc_count = [], None, 0, None, {}
     for i in range(30, len(df)):
         d = t[i].normalize()
         if d != cur_day:
@@ -168,6 +168,8 @@ def backtest(df, p):
                     ex = (c[i], "VWAP")
             if not ex and p["sig_exit"] and ((side == 1 and h_exit_long.iat[i]) or (side == -1 and h_exit_short.iat[i])):
                 ex = (c[i], "SIG")
+            if not ex and p.get("expiries") is not None and d >= p["exit_day"].get(pos["cyc"], d + pd.Timedelta(days=1)) and close_t >= 910:
+                ex = (c[i], "EXPIRY")   # CNC: exit 1 trading day before expiry
             if not ex and close_t >= p["sq_off"]:
                 ex = (c[i], "EOD")
             if ex:
@@ -177,6 +179,11 @@ def backtest(df, p):
                                    net=pts - cost_points(entry, p.get("stt", 0.0002))))
                 pos = None
             continue
+        cyc = None
+        if p.get("expiries") is not None:
+            cyc = p["cycle_of"][d]
+            if d >= p["exit_day"][cyc] or cyc_count.get(cyc, 0) >= p.get("cycle_cap", 10**6):
+                continue
         if day_count >= p["max_trades"] or t[i].dayofweek not in p["days"]:
             continue
         if close_t < p["start"] or close_t > p["no_trade_after"]:
@@ -194,6 +201,8 @@ def backtest(df, p):
             risk = p["sl"] * a[i]
         pos = dict(side=side, entry=entry, risk=risk, t=t[i],
                    sl=entry - side * risk, tp=entry + side * risk * p["rr"])
+        pos["cyc"] = cyc
+        if cyc is not None: cyc_count[cyc] = cyc_count.get(cyc, 0) + 1
         day_count += 1
     return pd.DataFrame(trades)
 
