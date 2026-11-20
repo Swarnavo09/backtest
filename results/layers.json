@@ -1,0 +1,702 @@
+[
+ {
+  "week": "none",
+  "day": "none",
+  "trades": 674,
+  "win": 55.6,
+  "train": 528969,
+  "test": 668171,
+  "total": 1197140,
+  "dd": -155441,
+  "since_sep25": 552266,
+  "before_sep25": 644874,
+  "years": {
+   "2022": 206783,
+   "2023": 163184,
+   "2024": 159001,
+   "2025": 178999,
+   "2026": 489173
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "none",
+  "day": "IDEAL: price above/below today's open",
+  "trades": 575,
+  "win": 56.7,
+  "train": 455587,
+  "test": 532015,
+  "total": 987601,
+  "dd": -150869,
+  "since_sep25": 394828,
+  "before_sep25": 592773,
+  "years": {
+   "2022": 256998,
+   "2023": 147467,
+   "2024": 51122,
+   "2025": 182790,
+   "2026": 349225
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "none",
+  "day": "1H EMA63 vs EMA147 (daily EMA 9/21)",
+  "trades": 403,
+  "win": 56.3,
+  "train": 400955,
+  "test": 122638,
+  "total": 523592,
+  "dd": -256167,
+  "since_sep25": 76378,
+  "before_sep25": 447215,
+  "years": {
+   "2022": 52591,
+   "2023": 132938,
+   "2024": 215426,
+   "2025": -12417,
+   "2026": 135054
+  },
+  "neg_years": 1
+ },
+ {
+  "week": "none",
+  "day": "1H EMA21 vs EMA63 (daily EMA 3/9)",
+  "trades": 478,
+  "win": 56.3,
+  "train": 307388,
+  "test": 349027,
+  "total": 656415,
+  "dd": -187579,
+  "since_sep25": 346136,
+  "before_sep25": 310279,
+  "years": {
+   "2022": 30877,
+   "2023": 159095,
+   "2024": 117416,
+   "2025": 1360,
+   "2026": 347667
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "none",
+  "day": "1H close vs EMA63 (daily EMA 9)",
+  "trades": 581,
+  "win": 56.3,
+  "train": 469515,
+  "test": 483006,
+  "total": 952521,
+  "dd": -151373,
+  "since_sep25": 391028,
+  "before_sep25": 561493,
+  "years": {
+   "2022": 162046,
+   "2023": 76887,
+   "2024": 230582,
+   "2025": 93931,
+   "2026": 389075
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "none",
+  "day": "1H close vs EMA35 (daily EMA 5)",
+  "trades": 626,
+  "win": 56.9,
+  "train": 472187,
+  "test": 689401,
+  "total": 1161587,
+  "dd": -135674,
+  "since_sep25": 547481,
+  "before_sep25": 614106,
+  "years": {
+   "2022": 221696,
+   "2023": 96073,
+   "2024": 154418,
+   "2025": 187868,
+   "2026": 501533
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "none",
+  "day": "1H close vs EMA7 (about today's trend)",
+  "trades": 671,
+  "win": 55.6,
+  "train": 516682,
+  "test": 686523,
+  "total": 1203205,
+  "dd": -151805,
+  "since_sep25": 542929,
+  "before_sep25": 660277,
+  "years": {
+   "2022": 201833,
+   "2023": 132590,
+   "2024": 182260,
+   "2025": 204313,
+   "2026": 482210
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "none",
+  "trades": 595,
+  "win": 56.3,
+  "train": 463501,
+  "test": 579998,
+  "total": 1043499,
+  "dd": -136371,
+  "since_sep25": 455011,
+  "before_sep25": 588487,
+  "years": {
+   "2022": 204945,
+   "2023": 68355,
+   "2024": 190200,
+   "2025": 218025,
+   "2026": 361973
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "IDEAL: price above/below today's open",
+  "trades": 537,
+  "win": 57.2,
+  "train": 463158,
+  "test": 484929,
+  "total": 948086,
+  "dd": -140947,
+  "since_sep25": 328173,
+  "before_sep25": 619913,
+  "years": {
+   "2022": 260169,
+   "2023": 114108,
+   "2024": 88881,
+   "2025": 220176,
+   "2026": 264752
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "1H EMA63 vs EMA147 (daily EMA 9/21)",
+  "trades": 349,
+  "win": 57.3,
+  "train": 393676,
+  "test": 84525,
+  "total": 478201,
+  "dd": -208589,
+  "since_sep25": 39834,
+  "before_sep25": 438367,
+  "years": {
+   "2022": 106211,
+   "2023": 68932,
+   "2024": 218534,
+   "2025": 24735,
+   "2026": 59790
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "1H EMA21 vs EMA63 (daily EMA 3/9)",
+  "trades": 414,
+  "win": 56.8,
+  "train": 309350,
+  "test": 238898,
+  "total": 548248,
+  "dd": -179383,
+  "since_sep25": 229723,
+  "before_sep25": 318525,
+  "years": {
+   "2022": 89708,
+   "2023": 80183,
+   "2024": 139459,
+   "2025": 28293,
+   "2026": 210606
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "1H close vs EMA63 (daily EMA 9)",
+  "trades": 515,
+  "win": 56.7,
+  "train": 435258,
+  "test": 385924,
+  "total": 821182,
+  "dd": -136333,
+  "since_sep25": 300871,
+  "before_sep25": 520312,
+  "years": {
+   "2022": 190538,
+   "2023": 15911,
+   "2024": 228809,
+   "2025": 110247,
+   "2026": 275677
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "1H close vs EMA35 (daily EMA 5)",
+  "trades": 559,
+  "win": 56.5,
+  "train": 420008,
+  "test": 488535,
+  "total": 908543,
+  "dd": -131849,
+  "since_sep25": 393576,
+  "before_sep25": 514967,
+  "years": {
+   "2022": 195884,
+   "2023": 20190,
+   "2024": 203933,
+   "2025": 158172,
+   "2026": 330363
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "IDEAL: price above/below this week's open",
+  "day": "1H close vs EMA7 (about today's trend)",
+  "trades": 592,
+  "win": 56.6,
+  "train": 495369,
+  "test": 602075,
+  "total": 1097445,
+  "dd": -142498,
+  "since_sep25": 450972,
+  "before_sep25": 646473,
+  "years": {
+   "2022": 192011,
+   "2023": 46522,
+   "2024": 256836,
+   "2025": 242732,
+   "2026": 359343
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "none",
+  "trades": 396,
+  "win": 54.5,
+  "train": 60909,
+  "test": 220451,
+  "total": 281361,
+  "dd": -209212,
+  "since_sep25": 142453,
+  "before_sep25": 138908,
+  "years": {
+   "2022": -3100,
+   "2023": -34577,
+   "2024": 98585,
+   "2025": 30144,
+   "2026": 190308
+  },
+  "neg_years": 2
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "IDEAL: price above/below today's open",
+  "trades": 321,
+  "win": 56.1,
+  "train": 48131,
+  "test": 260166,
+  "total": 308297,
+  "dd": -155848,
+  "since_sep25": 183513,
+  "before_sep25": 124784,
+  "years": {
+   "2022": 48574,
+   "2023": -30382,
+   "2024": 29939,
+   "2025": 30339,
+   "2026": 229827
+  },
+  "neg_years": 1
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "1H EMA63 vs EMA147 (daily EMA 9/21)",
+  "trades": 310,
+  "win": 53.9,
+  "train": 82683,
+  "test": 43558,
+  "total": 126241,
+  "dd": -189170,
+  "since_sep25": 40519,
+  "before_sep25": 85723,
+  "years": {
+   "2022": 4456,
+   "2023": -54840,
+   "2024": 133067,
+   "2025": -59186,
+   "2026": 102745
+  },
+  "neg_years": 2
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "1H EMA21 vs EMA63 (daily EMA 3/9)",
+  "trades": 293,
+  "win": 54.3,
+  "train": -12216,
+  "test": 182533,
+  "total": 170317,
+  "dd": -179438,
+  "since_sep25": 154762,
+  "before_sep25": 15555,
+  "years": {
+   "2022": -35518,
+   "2023": -23865,
+   "2024": 47167,
+   "2025": -16139,
+   "2026": 198672
+  },
+  "neg_years": 3
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "1H close vs EMA63 (daily EMA 9)",
+  "trades": 344,
+  "win": 55.2,
+  "train": 33959,
+  "test": 173191,
+  "total": 207150,
+  "dd": -174455,
+  "since_sep25": 136500,
+  "before_sep25": 70650,
+  "years": {
+   "2022": 29975,
+   "2023": -79055,
+   "2024": 83039,
+   "2025": -5271,
+   "2026": 178461
+  },
+  "neg_years": 2
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "1H close vs EMA35 (daily EMA 5)",
+  "trades": 371,
+  "win": 54.7,
+  "train": -14983,
+  "test": 205876,
+  "total": 190893,
+  "dd": -197135,
+  "since_sep25": 167536,
+  "before_sep25": 23356,
+  "years": {
+   "2022": -2710,
+   "2023": -93893,
+   "2024": 81619,
+   "2025": -5462,
+   "2026": 211337
+  },
+  "neg_years": 3
+ },
+ {
+  "week": "1H EMA175 vs EMA350 (weekly EMA 5/10)",
+  "day": "1H close vs EMA7 (about today's trend)",
+  "trades": 391,
+  "win": 54.7,
+  "train": 77684,
+  "test": 223325,
+  "total": 301008,
+  "dd": -202717,
+  "since_sep25": 142129,
+  "before_sep25": 158880,
+  "years": {
+   "2022": -10372,
+   "2023": -47622,
+   "2024": 135679,
+   "2025": 31932,
+   "2026": 191393
+  },
+  "neg_years": 2
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "none",
+  "trades": 481,
+  "win": 56.8,
+  "train": 400267,
+  "test": 331996,
+  "total": 732264,
+  "dd": -227155,
+  "since_sep25": 258861,
+  "before_sep25": 473403,
+  "years": {
+   "2022": 105530,
+   "2023": 120438,
+   "2024": 174299,
+   "2025": 35025,
+   "2026": 296971
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "IDEAL: price above/below today's open",
+  "trades": 403,
+  "win": 57.6,
+  "train": 307850,
+  "test": 291020,
+  "total": 598870,
+  "dd": -167847,
+  "since_sep25": 199399,
+  "before_sep25": 399471,
+  "years": {
+   "2022": 126735,
+   "2023": 91377,
+   "2024": 89738,
+   "2025": 73003,
+   "2026": 218017
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "1H EMA63 vs EMA147 (daily EMA 9/21)",
+  "trades": 395,
+  "win": 56.2,
+  "train": 346759,
+  "test": 170440,
+  "total": 517199,
+  "dd": -202030,
+  "since_sep25": 117139,
+  "before_sep25": 400061,
+  "years": {
+   "2022": 41426,
+   "2023": 113925,
+   "2024": 191409,
+   "2025": 11531,
+   "2026": 158909
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "1H EMA21 vs EMA63 (daily EMA 3/9)",
+  "trades": 405,
+  "win": 56.8,
+  "train": 342255,
+  "test": 344418,
+  "total": 686673,
+  "dd": -190348,
+  "since_sep25": 288862,
+  "before_sep25": 397812,
+  "years": {
+   "2022": 82861,
+   "2023": 140348,
+   "2024": 119046,
+   "2025": 44906,
+   "2026": 299513
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "1H close vs EMA63 (daily EMA 9)",
+  "trades": 452,
+  "win": 56.9,
+  "train": 396343,
+  "test": 329817,
+  "total": 726160,
+  "dd": -198117,
+  "since_sep25": 272766,
+  "before_sep25": 453394,
+  "years": {
+   "2022": 156399,
+   "2023": 85424,
+   "2024": 154520,
+   "2025": 24834,
+   "2026": 304984
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "1H close vs EMA35 (daily EMA 5)",
+  "trades": 468,
+  "win": 56.4,
+  "train": 354049,
+  "test": 313213,
+  "total": 667262,
+  "dd": -207800,
+  "since_sep25": 264006,
+  "before_sep25": 403256,
+  "years": {
+   "2022": 133483,
+   "2023": 79539,
+   "2024": 141026,
+   "2025": 15150,
+   "2026": 298063
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA350 (weekly EMA 10)",
+  "day": "1H close vs EMA7 (about today's trend)",
+  "trades": 475,
+  "win": 56.6,
+  "train": 440297,
+  "test": 331089,
+  "total": 771386,
+  "dd": -219083,
+  "since_sep25": 254571,
+  "before_sep25": 516815,
+  "years": {
+   "2022": 116203,
+   "2023": 103758,
+   "2024": 220336,
+   "2025": 36998,
+   "2026": 294091
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "none",
+  "trades": 511,
+  "win": 56.2,
+  "train": 328166,
+  "test": 295655,
+  "total": 623821,
+  "dd": -260853,
+  "since_sep25": 211976,
+  "before_sep25": 411845,
+  "years": {
+   "2022": 112483,
+   "2023": 99817,
+   "2024": 115866,
+   "2025": 9889,
+   "2026": 285767
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "IDEAL: price above/below today's open",
+  "trades": 435,
+  "win": 56.6,
+  "train": 189455,
+  "test": 251472,
+  "total": 440926,
+  "dd": -242306,
+  "since_sep25": 146653,
+  "before_sep25": 294273,
+  "years": {
+   "2022": 94688,
+   "2023": 65662,
+   "2024": 29104,
+   "2025": 36439,
+   "2026": 215033
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "1H EMA63 vs EMA147 (daily EMA 9/21)",
+  "trades": 397,
+  "win": 56.7,
+  "train": 409400,
+  "test": 161971,
+  "total": 571371,
+  "dd": -217173,
+  "since_sep25": 110886,
+  "before_sep25": 460485,
+  "years": {
+   "2022": 52591,
+   "2023": 132938,
+   "2024": 223871,
+   "2025": -10052,
+   "2026": 172024
+  },
+  "neg_years": 1
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "1H EMA21 vs EMA63 (daily EMA 3/9)",
+  "trades": 460,
+  "win": 56.5,
+  "train": 320355,
+  "test": 315801,
+  "total": 636157,
+  "dd": -224701,
+  "since_sep25": 248857,
+  "before_sep25": 387299,
+  "years": {
+   "2022": 62131,
+   "2023": 148034,
+   "2024": 110191,
+   "2025": 30563,
+   "2026": 285238
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "1H close vs EMA63 (daily EMA 9)",
+  "trades": 504,
+  "win": 56.3,
+  "train": 357754,
+  "test": 300800,
+  "total": 658554,
+  "dd": -256351,
+  "since_sep25": 217963,
+  "before_sep25": 440591,
+  "years": {
+   "2022": 132094,
+   "2023": 98431,
+   "2024": 127229,
+   "2025": 2997,
+   "2026": 297803
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "1H close vs EMA35 (daily EMA 5)",
+  "trades": 507,
+  "win": 55.8,
+  "train": 301786,
+  "test": 280551,
+  "total": 582336,
+  "dd": -259279,
+  "since_sep25": 198803,
+  "before_sep25": 383533,
+  "years": {
+   "2022": 121380,
+   "2023": 78155,
+   "2024": 102250,
+   "2025": 68,
+   "2026": 280482
+  },
+  "neg_years": 0
+ },
+ {
+  "week": "1H close vs EMA175 (weekly EMA 5)",
+  "day": "1H close vs EMA7 (about today's trend)",
+  "trades": 506,
+  "win": 56.1,
+  "train": 376161,
+  "test": 308319,
+  "total": 684480,
+  "dd": -257266,
+  "since_sep25": 212535,
+  "before_sep25": 471945,
+  "years": {
+   "2022": 131151,
+   "2023": 83137,
+   "2024": 161873,
+   "2025": 20584,
+   "2026": 287734
+  },
+  "neg_years": 0
+ }
+]
