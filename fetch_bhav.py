@@ -16,7 +16,8 @@ import pandas as pd
 ROOT = Path(__file__).parent
 import os
 NEXP = int(os.environ.get("NEXP", "2"))
-OUT = ROOT / "data" / ("nifty_opt_bhav.csv.gz" if NEXP == 2 else f"nifty_opt_bhav_{NEXP}exp.csv.gz")
+SYM = os.environ.get("SYM", "NIFTY")
+OUT = ROOT / "data" / ((("nifty_opt_bhav.csv.gz" if NEXP == 2 else f"nifty_opt_bhav_{NEXP}exp.csv.gz")) if SYM == "NIFTY" else f"{SYM.lower()}_opt_bhav_{NEXP}exp.csv.gz")
 UA = {"User-Agent": "Mozilla/5.0 (backtest script)"}
 NEW_FROM = pd.Timestamp("2024-07-08")   # NSE switched to the UDiFF bhavcopy format
 
@@ -41,12 +42,12 @@ def fetch(d: pd.Timestamp) -> pd.DataFrame | None:
                 return None
             time.sleep(2 + 3 * attempt)
     if "TckrSymb" in raw.columns:      # new format
-        x = raw[(raw.TckrSymb == "NIFTY") & (raw.FinInstrmTp == "IDO")]
+        x = raw[(raw.TckrSymb == SYM) & (raw.FinInstrmTp == "IDO")]
         x = pd.DataFrame({"expiry": pd.to_datetime(x.XpryDt), "strike": x.StrkPric, "type": x.OptnTp,
                           "open": x.OpnPric, "high": x.HghPric, "low": x.LwPric, "close": x.ClsPric,
                           "settle": x.SttlmPric, "volume": x.TtlTradgVol, "under": x.UndrlygPric})
     else:
-        x = raw[(raw.SYMBOL == "NIFTY") & (raw.INSTRUMENT == "OPTIDX")]
+        x = raw[(raw.SYMBOL == SYM) & (raw.INSTRUMENT == "OPTIDX")]
         x = pd.DataFrame({"expiry": pd.to_datetime(x.EXPIRY_DT, format="%d-%b-%Y"), "strike": x.STRIKE_PR,
                           "type": x.OPTION_TYP, "open": x.OPEN, "high": x.HIGH, "low": x.LOW,
                           "close": x.CLOSE, "settle": x.SETTLE_PR, "volume": x.CONTRACTS, "under": float("nan")})

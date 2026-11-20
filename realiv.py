@@ -20,6 +20,8 @@ from scipy.special import ndtr
 import strategy
 
 ROOT = Path(__file__).parent
+OPT_FILE = ROOT / "data" / "nifty_opt_bhav.csv.gz"     # override for other indices
+SPOT_FILE = ROOT / "data" / "nifty_5m_5y.csv"
 TRADE_MIN, YEAR_TRADE_MIN = 375, 252 * 375
 R = strategy.RISK_FREE
 
@@ -54,8 +56,8 @@ class RealIV:
         self.vx_t = vx.index.values
         self.vx_c = vx.Close.values
         self.vx_prev = vx.Close.groupby(vx.index.date).last().shift(1).to_dict()
-        opt = pd.read_csv(ROOT / "data" / "nifty_opt_bhav.csv.gz", parse_dates=["date", "expiry"])
-        n5 = pd.read_csv(ROOT / "data" / "nifty_5m_5y.csv", index_col=0, parse_dates=True)
+        opt = pd.read_csv(OPT_FILE, parse_dates=["date", "expiry"])
+        n5 = pd.read_csv(SPOT_FILE, index_col=0, parse_dates=True)
         n5.index = pd.to_datetime(n5.index, utc=True).tz_convert("Asia/Kolkata")
         spot = n5.Close.groupby(n5.index.date).last()
         self.days = sorted(spot.index)
