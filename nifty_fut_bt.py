@@ -177,6 +177,8 @@ def backtest(df, p):
             if not ex and close_t >= p["sq_off"]:
                 ex = (c[i], "EOD")
             if ex:
+                if p.get("kill_cycle") and ex[1] in ("SL", "TP") and pos.get("cyc") is not None:
+                    cyc_count[pos["cyc"]] = 10**9      # platform: overall M2M exit stops the whole cycle
                 pts = (ex[0] - entry) * side
                 trades.append(dict(entry_time=pos["t"], exit_time=t[i], side=side, entry=entry, exit=ex[0],
                                    reason=ex[1], risk=pos["risk"], pts=pts,
