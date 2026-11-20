@@ -22,7 +22,7 @@ def leg_cost(prem_in, prem_out, sell_first, lots=1):
     q=LOT*lots; turn=(prem_in+prem_out)*q; sell_val=(prem_in if sell_first else prem_out)*q
     exch=0.0003503*turn; return 40 + 0.001*sell_val + exch + 0.000001*turn + 0.00003*(turn-sell_val) + 0.18*(40+exch) + 2*1.0*q
 
-def simulate(df, bar_min, cyc, sl, tp, trail=None, cap=99, exit_e21=True, overall=None, kill=False, lots=1):
+def simulate(df, bar_min, cyc, sl, tp, trail=None, cap=99, exit_e21=True, overall=None, kill=False, lots=1, skip_wd=()):
     """trail=(X,Y): every X pts favourable move in a leg's premium, move that leg's SL by Y.
        overall=(loss_rs, profit_rs) combined M2M exit; kill=True -> that exit ends the cycle."""
     L, Sg = signals(df); t=df.index; o,h,l,c = df.Open.values, df.High.values, df.Low.values, df.Close.values
@@ -42,9 +42,10 @@ def simulate(df, bar_min, cyc, sl, tp, trail=None, cap=99, exit_e21=True, overal
                 sgn = 1 if leg["buy"] else -1                     # P&L sign per premium point
                 pnl_pts=[sgn*(v-leg["in"]) for v in vals]
                 worst=min(pnl_pts[1:3]); best=max(pnl_pts[1:3])
-                if sgn*(vals[0]-leg["in"]) <= -leg["sl"]: leg["out"]=(vals[0],"SL")          # gap through SL
-                elif worst <= -leg["sl"]: leg["out"]=(leg["in"]-sgn*leg["sl"],"SL")
-                elif tp and best >= tp: leg["out"]=(leg["in"]+sgn*tp,"TP")
+                adv_spot = l[i] if pos["side"]==1 else h[i]; fav_spot = h[i] if pos["side"]==1 else l[i]
+                if sgn*(vals[0]-leg["in"]) <= -leg["sl"]: leg["out"]=(vals[0],"SL"); leg["xs"]=o[i]; leg["xt"]=t[i]          # gap through SL
+                elif worst <= -leg["sl"]: leg["out"]=(leg["in"]-sgn*leg["sl"],"SL"); leg["xs"]=adv_spot if leg["sl"]>=leg["sl0"] else fav_spot; leg["xt"]=t[i]
+                elif tp and best >= tp: leg["out"]=(leg["in"]+sgn*tp,"TP"); leg["xs"]=fav_spot; leg["xt"]=t[i]
                 elif trail:
                     leg["best"]=max(leg["best"],best); steps=int(leg["best"]//trail[0])
                     leg["sl"]=min(leg["sl0"], leg["sl0"]-steps*trail[1]) if steps else leg["sl0"]
@@ -55,16 +56,20 @@ def simulate(df, bar_min, cyc, sl, tp, trail=None, cap=99, exit_e21=True, overal
             if d>=cyc["exit_day"][pos["cyc"]] and close_t>=910: reason="EXPIRY"
             if overall and (m2m<=-overall[0] or m2m>=overall[1]): reason="M2M"
             for lg in pos["legs"]:
-                if lg["out"] is None and reason: lg["out"]=(bs(c[i],pos["K"],Tn,iv,lg["call"]),reason)
+                if lg["out"] is None and reason: lg["out"]=(bs(c[i],pos["K"],Tn,iv,lg["call"]),reason); lg["xs"]=c[i]; lg["xt"]=t[i]
             if all(lg["out"] for lg in pos["legs"]):
                 gross=sum((lg["out"][0]-lg["in"])*(1 if lg["buy"] else -1) for lg in pos["legs"])*LOT*lots
                 cost=sum(leg_cost(lg["in"],lg["out"][0],not lg["buy"],lots) for lg in pos["legs"])
+                xs=[lg["xs"] for lg in pos["legs"]]; xts=[lg["xt"] for lg in pos["legs"]]
                 trades.append(dict(entry_time=pos["t"],exit_time=t[i],side=pos["side"],K=pos["K"],gross=gross,cost=cost,net=gross-cost,
+                                   entry_spot=pos["spot"],spot_move_first=(xs[int(np.argmin(xts))]-pos["spot"])*pos["side"],
+                                   spot_move_last=(xs[int(np.argmax(xts))]-pos["spot"])*pos["side"],legs_split=int(xts[0]!=xts[1]),
+                                   prem_buy=pos["legs"][0]["in"],prem_sell=pos["legs"][1]["in"],
                                    reasons="/".join(lg["out"][1] for lg in pos["legs"])))
                 if kill and reason=="M2M": cnt[pos["cyc"]]=10**9
                 pos=None
             continue
-        if d>=cyc["exit_day"][cy] or cnt.get(cy,0)>=cap or close_t<570 or close_t>900: continue
+        if d>=cyc["exit_day"][cy] or cnt.get(cy,0)>=cap or close_t<570 or close_t>900 or t[i].dayofweek in skip_wd: continue
         side=1 if L[i] else (-1 if Sg[i] else 0)
         if not side: continue
         K=round(c[i]/50)*50; exp=cy; Tn=max((exp+pd.Timedelta(hours=15.5)-(t[i]+pd.Timedelta(minutes=bar_min))).total_seconds(),0)/86400/365
@@ -73,7 +78,7 @@ def simulate(df, bar_min, cyc, sl, tp, trail=None, cap=99, exit_e21=True, overal
         legs[0]["in"]=ce if side==1 else pe; legs[1]["in"]=pe if side==1 else ce
         for lg in legs:
             lg.update(sl=sl,sl0=sl,out=None,best=0.0)
-        pos=dict(side=side,K=K,exp=exp,cyc=cy,t=t[i],legs=legs); cnt[cy]=cnt.get(cy,0)+1
+        pos=dict(side=side,K=K,exp=exp,cyc=cy,t=t[i],legs=legs,spot=c[i]); cnt[cy]=cnt.get(cy,0)+1
     return pd.DataFrame(trades)
 
 def evn(tr):
