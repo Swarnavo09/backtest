@@ -1,0 +1,184 @@
+//@version=6
+// NIFTY Futures – Monthly positional strategy (ST + EMA + VWAP)
+// Use on NSE:NIFTY1! (continuous futures, has volume for VWAP), 15 min or 1 H chart.
+strategy("NIFTY Fut Monthly – ST+EMA+VWAP", overlay = true,
+     initial_capital = 300000, currency = currency.INR,
+     default_qty_type = strategy.fixed, default_qty_value = 65,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 4.5,
+     process_orders_on_close = true, pyramiding = 0, max_bars_back = 1000)
+
+// ───────── Inputs
+grpR = "Position & risk"
+lots        = input.int(1, "Lots", minval = 1, group = grpR)
+lotSize     = input.int(65, "Lot size", minval = 1, group = grpR)
+slPts       = input.float(50, "Stop loss (points)", minval = 1, group = grpR)
+tpPts       = input.float(300, "Target (points)", minval = 1, group = grpR)
+useTrail    = input.bool(true, "Trail after profit", group = grpR)
+trailStart  = input.float(100, "Start trailing at profit of (points)", group = grpR, tooltip = "At +100 pts the stop moves to cost, then stays 100 pts behind the best price")
+trailDist   = input.float(100, "Trail distance (points)", group = grpR)
+useEmaExit  = input.bool(true, "Exit when close crosses EMA21", group = grpR)
+
+grpI = "Entry conditions"
+stLen   = input.int(10, "SuperTrend period", group = grpI)
+stMult  = input.float(3.0, "SuperTrend multiplier", group = grpI)
+fastLen = input.int(9, "EMA fast", group = grpI)
+slowLen = input.int(21, "EMA slow", group = grpI)
+htf1Len = input.int(18, "Higher-TF EMA fast (18 ≈ EMA9 on 2x timeframe)", group = grpI)
+htf2Len = input.int(42, "Higher-TF EMA slow (42 ≈ EMA21 on 2x timeframe)", group = grpI)
+useVwap = input.bool(true, "Require close vs VWAP", group = grpI)
+
+grpC = "Monthly cycle (CNC)"
+maxPerCycle    = input.int(10, "Max trades per monthly expiry cycle", minval = 1, group = grpC)
+exitDaysBefore = input.int(1, "Exit / freeze N trading days before monthly expiry", minval = 0, maxval = 10, group = grpC, tooltip = "1 = close at 15:10 the day before expiry and take no new entries on that day or expiry day. Try 3 to freeze the last 3 days.")
+skipMonday     = input.bool(false, "Skip Monday entries", group = grpC)
+startMin       = input.int(570, "Entries allowed from (minutes after midnight IST, 570 = 09:30)", group = grpC)
+lastEntryMin   = input.int(900, "No entries after (900 = 15:00)", group = grpC)
+sqOffMin       = input.int(910, "Expiry square-off time (910 = 15:10)", group = grpC)
+fromDate       = input.time(timestamp("20 Nov 2024 00:00 +0530"), "Backtest from", group = grpC)
+
+// ───────── Indicators
+[st, stDir] = ta.supertrend(stMult, stLen)
+emaF  = ta.ema(close, fastLen)
+emaS  = ta.ema(close, slowLen)
+emaH1 = ta.ema(close, htf1Len)
+emaH2 = ta.ema(close, htf2Len)
+vw    = ta.vwap(hlc3)
+
+// ───────── Monthly expiry calendar (last Thursday until Aug-2025, last Tuesday from Sep-2025)
+// NSE holiday shifts are not modelled.
+TZ  = "Asia/Kolkata"
+DAY = 86400000
+f_expiry(int y, int m) =>
+    int ny = m == 12 ? y + 1 : y
+    int nm = m == 12 ? 1 : m + 1
+    int t = timestamp(TZ, ny, nm, 1, 0, 0) - DAY          // last calendar day of month
+    int target = t >= timestamp(TZ, 2025, 9, 1, 0, 0) ? dayofweek.tuesday : dayofweek.thursday
+    for i = 0 to 6
+        if dayofweek(t, TZ) == target
+            break
+        t -= DAY
+    t
+
+y0 = year(time, TZ)
+m0 = month(time, TZ)
+dayStart = timestamp(TZ, y0, m0, dayofmonth(time, TZ), 0, 0)
+expThis  = f_expiry(y0, m0)
+cycleExp = dayStart <= expThis ? expThis : f_expiry(m0 == 12 ? y0 + 1 : y0, m0 == 12 ? 1 : m0 + 1)
+
+// trading days (Mon–Fri) left to expiry; 0 = expiry day
+int tdte = 0
+for i = 1 to 40
+    int t = dayStart + i * DAY
+    if t > cycleExp
+        break
+    int dw = dayofweek(t, TZ)
+    if dw != dayofweek.saturday and dw != dayofweek.sunday
+        tdte += 1
+
+// ───────── Cycle trade counter
+var int curCycle    = 0
+var int cycleTrades = 0
+if cycleExp != curCycle
+    curCycle    := cycleExp
+    cycleTrades := 0
+
+// ───────── Entry filters
+closeMin = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+inWindow = closeMin >= startMin and closeMin <= lastEntryMin
+dayOk    = not (skipMonday and dayofweek(time, TZ) == dayofweek.monday)
+cycleOk  = tdte > exitDaysBefore and cycleTrades < maxPerCycle
+canEnter = time >= fromDate and inWindow and dayOk and cycleOk and strategy.position_size == 0
+
+longCond  = close > st and close > emaS and emaF > emaS and emaH1 > emaH2 and (not useVwap or close > vw)
+shortCond = close < st and close < emaS and emaF < emaS and emaH1 < emaH2 and (not useVwap or close < vw)
+
+var float ep       = na
+var float best     = 0.0
+var int   entryBar = 0
+qty = lots * lotSize
+
+if canEnter and longCond
+    strategy.entry("Long", strategy.long, qty = qty, comment = "BUY")
+    ep := close
+    best := 0.0
+    entryBar := bar_index
+    cycleTrades += 1
+else if canEnter and shortCond
+    strategy.entry("Short", strategy.short, qty = qty, comment = "SELL")
+    ep := close
+    best := 0.0
+    entryBar := bar_index
+    cycleTrades += 1
+
+// ───────── Exits: stop, target, trailing stop
+isLong  = strategy.position_size > 0 or (bar_index == entryBar and longCond and canEnter)
+isShort = strategy.position_size < 0 or (bar_index == entryBar and shortCond and canEnter and not longCond)
+float stopLvl = na
+float tgtLvl  = na
+if isLong and not na(ep)
+    if bar_index > entryBar
+        best := math.max(best, high - ep)
+    stopLvl := ep - slPts
+    if useTrail and best >= trailStart
+        stopLvl := math.max(stopLvl, ep + best - trailDist)
+    tgtLvl := ep + tpPts
+    strategy.exit("XL", "Long", stop = stopLvl, limit = tgtLvl, comment_loss = "SL/Trail", comment_profit = "TP")
+if isShort and not na(ep)
+    if bar_index > entryBar
+        best := math.max(best, ep - low)
+    stopLvl := ep + slPts
+    if useTrail and best >= trailStart
+        stopLvl := math.min(stopLvl, ep - best + trailDist)
+    tgtLvl := ep - tpPts
+    strategy.exit("XS", "Short", stop = stopLvl, limit = tgtLvl, comment_loss = "SL/Trail", comment_profit = "TP")
+
+// signal exit and pre-expiry square-off
+if useEmaExit and strategy.position_size > 0 and bar_index > entryBar and close < emaS
+    strategy.close("Long", comment = "EMA21 exit")
+if useEmaExit and strategy.position_size < 0 and bar_index > entryBar and close > emaS
+    strategy.close("Short", comment = "EMA21 exit")
+if strategy.position_size != 0 and tdte <= exitDaysBefore and closeMin >= sqOffMin
+    strategy.close_all(comment = "Pre-expiry exit")
+
+// ───────── Plots
+plot(st, "SuperTrend", color = stDir < 0 ? color.new(color.teal, 0) : color.new(color.red, 0), linewidth = 2)
+plot(emaF, "EMA 9", color = color.new(color.orange, 20))
+plot(emaS, "EMA 21", color = color.new(color.blue, 0), linewidth = 2)
+plot(emaH1, "EMA 18", color = color.new(color.purple, 50))
+plot(emaH2, "EMA 42", color = color.new(color.purple, 0))
+plot(useVwap ? vw : na, "VWAP", color = color.new(color.gray, 0), style = plot.style_circles, linewidth = 1)
+plot(strategy.position_size != 0 ? stopLvl : na, "Stop", color = color.red, style = plot.style_linebr, linewidth = 2)
+plot(strategy.position_size != 0 ? tgtLvl : na, "Target", color = color.green, style = plot.style_linebr, linewidth = 2)
+bgcolor(tdte <= exitDaysBefore ? color.new(color.gray, 92) : na, title = "Frozen days before expiry")
+
+// ───────── Profit dashboard
+var float monthStartNet = 0.0
+if month(time, TZ) != month(time[1], TZ)
+    monthStartNet := strategy.netprofit
+
+var table tb = table.new(position.top_right, 2, 11, bgcolor = color.new(color.black, 15), border_width = 1, border_color = color.new(color.gray, 60))
+f_row(int r, string k, string v, color c) =>
+    table.cell(tb, 0, r, k, text_color = color.silver, text_size = size.small, text_halign = text.align_left)
+    table.cell(tb, 1, r, v, text_color = c, text_size = size.small, text_halign = text.align_right)
+f_rs(float v) =>
+    (v < 0 ? "-₹" : "₹") + str.tostring(math.abs(v), "#,##0")
+
+if barstate.islast
+    closed = strategy.closedtrades
+    winR   = closed > 0 ? float(strategy.wintrades) / closed * 100 : 0.0
+    pf     = strategy.grossloss > 0 ? strategy.grossprofit / strategy.grossloss : 0.0
+    monthP = strategy.netprofit - monthStartNet + strategy.openprofit
+    up = color.new(color.lime, 0)
+    dn = color.new(color.red, 0)
+    wh = color.white
+    f_row(0, "NIFTY Fut Monthly", str.tostring(lots) + " lot(s)", wh)
+    f_row(1, "Net profit (after charges)", f_rs(strategy.netprofit), strategy.netprofit >= 0 ? up : dn)
+    f_row(2, "Return on capital", str.tostring(strategy.netprofit / strategy.initial_capital * 100, "0.0") + "%", strategy.netprofit >= 0 ? up : dn)
+    f_row(3, "Closed trades", str.tostring(closed), wh)
+    f_row(4, "Win rate", str.tostring(winR, "0.0") + "%", wh)
+    f_row(5, "Profit factor", str.tostring(pf, "0.00"), pf >= 1 ? up : dn)
+    f_row(6, "Max drawdown", f_rs(-strategy.max_drawdown), dn)
+    f_row(7, "Avg per trade", f_rs(closed > 0 ? strategy.netprofit / closed : 0), wh)
+    f_row(8, "Open P&L", f_rs(strategy.openprofit), strategy.openprofit >= 0 ? up : dn)
+    f_row(9, "This month", f_rs(monthP), monthP >= 0 ? up : dn)
+    f_row(10, "Trades this cycle / days to expiry", str.tostring(cycleTrades) + "/" + str.tostring(maxPerCycle) + "  ·  " + str.tostring(tdte) + "d", wh)
