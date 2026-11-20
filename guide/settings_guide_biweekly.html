@@ -1,0 +1,77 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--blue:#1d4ed8;--bd:#e5e7eb;--mut:#6b7280;--g:#15803d;--r:#dc2626;--hl:#fef3c7}
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font:13px/1.45 system-ui,Segoe UI,Roboto,Arial;color:#111827}
+.wrap{width:860px;padding:18px}
+h1{font-size:19px;margin:0 0 2px}.sub{color:var(--mut);margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.n{background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.f{flex:1;min-width:150px}.f label{display:block;font-size:11px;color:var(--mut);margin-bottom:3px}
+.v{border:1px solid var(--bd);border-radius:6px;padding:6px 9px;background:#f9fafb;font-weight:600}
+.v.hl{background:var(--hl);border-color:#f59e0b}
+.chip{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:4px 10px;margin:2px 4px 2px 0;color:var(--mut)}
+.chip.on{background:#dbeafe;border-color:var(--blue);color:var(--blue);font-weight:700}
+.chk{font-weight:600}.chk.off{color:var(--mut);font-weight:400;text-decoration:line-through}
+table{width:100%;border-collapse:collapse}td,th{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f9fafb;font-size:11px;color:var(--mut)}.L{color:var(--g);font-weight:700}.S{color:var(--r);font-weight:700}
+.and{display:inline-block;background:var(--blue);color:#fff;border-radius:4px;padding:1px 8px;font-size:11px}
+.note{background:#eff6ff;border-left:3px solid var(--blue);padding:7px 10px;margin-top:8px;font-size:12px}
+.warn{background:#fff7ed;border-left:3px solid #f97316;padding:7px 10px;margin-top:8px;font-size:12px}
+.leg{border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin:8px 0}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}.k{flex:1;min-width:120px;border:1px solid var(--bd);border-radius:8px;padding:8px}.k b{display:block;font-size:17px}
+</style></head><body><div class="wrap">
+<h1>Strategy Builder settings: NIFTY Synthetic Futures, BI-WEEKLY, 15 min</h1>
+<div class="sub">My settings guide, laid out in the same order as the fields in your Strategy Builder screenshot. It is <b>not</b> a screenshot of the portal. Highlighted values are the ones to change.</div>
+
+<div class="card"><h2><span class="n">1</span>Strategy Type</h2>
+<div class="chk off">☐ Option Trading - Time Based</div><div class="chk">☑ Option Trading - Indicator Based</div><div class="chk off">☐ Stocks &amp; Futures - Indicator Based <span style="text-decoration:none">(use this only for the plain-futures version)</span></div></div>
+
+<div class="card"><h2><span class="n">2</span>Select Instruments</h2>
+<div class="row"><div class="f"><label>Instrument</label><div class="v">NIFTY 50 (lot 65, NSE)</div></div>
+<div class="f"><label>Underlying (reference for indicators)</label><div class="v hl">Future</div></div></div>
+<div class="note">Choose <b>Future</b>, not Spot. The Nifty index has no volume, so VWAP only works on futures data.</div></div>
+
+<div class="card"><h2><span class="n">3</span>Order Type</h2>
+<div class="row"><div class="f"><label>Type</label><span class="chip">MIS</span><span class="chip on">CNC (positional)</span><span class="chip">BTST</span></div></div><div class="row"><div class="f"><label>CNC Settings: Entry</label><div class="v hl">9 trading days before expiry</div></div><div class="f"><label>CNC Settings: Exit</label><div class="v hl">1 trading day before expiry</div></div></div>
+<div class="row"><div class="f"><label>Start Time</label><div class="v">09:30</div></div><div class="f"><label>Square Off</label><div class="v">15:15 (not used under CNC: the trade carries overnight)</div></div></div>
+<div class="row"><div class="f"><label>Days</label><span class="chip on">MON</span><span class="chip on">TUE</span><span class="chip on">WED</span><span class="chip on">THU</span><span class="chip on">FRI</span></div></div>
+<div class="row"><div class="f"><label>Transaction Type</label><span class="chip on">Both Side</span><span class="chip">Only Long</span><span class="chip">Only Short</span></div>
+<div class="f"><label>Chart Type</label><span class="chip on">Candle</span><span class="chip">Heikin Ashi</span></div></div>
+<div class="row"><div class="f"><label>Interval</label><span class="chip">1 min</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span><span class="chip on">15 min</span><span class="chip">30 min</span><span class="chip">1H</span></div></div>
+<div class="note">Trade Strategy box (Straddle / Options / Spread chart): leave all unchecked.</div></div>
+
+<div class="card"><h2><span class="n">4</span>Strategy Legs (Buy ATM CE + Sell ATM PE = synthetic long)</h2>
+<div class="leg"><b>Leg 1: BUY</b>
+<div class="row"><div class="f"><label class="L">When Long Condition</label><div class="v hl">CE</div></div><div class="f"><label class="S">When Short Condition</label><div class="v hl">PE</div></div><div class="f"><label>Position</label><div class="v hl" style="color:var(--g)">BUY</div></div></div>
+<div class="row"><div class="f"><label>Qty</label><div class="v">65 (1 lot)</div></div><div class="f"><label>Expiry</label><div class="v hl">NEXT WEEKLY</div></div><div class="f"><label>Strike Criteria</label><div class="v">ATM pt</div></div><div class="f"><label>Strike Type</label><div class="v hl">ATM (0)</div></div></div>
+<div class="row"><div class="f"><label>SL Type / SL / On</label><div class="v hl">Points / 20 / On Price</div></div><div class="f"><label>TP Type / TP</label><div class="v hl">Points / 0 (no leg target)</div></div><div class="f"><label>Trail SL ☑ (X / Y)</label><div class="v hl">40 / 20</div></div></div></div>
+<div class="leg"><b>Leg 2: SELL</b>
+<div class="row"><div class="f"><label class="L">When Long Condition</label><div class="v hl">PE</div></div><div class="f"><label class="S">When Short Condition</label><div class="v hl">CE</div></div><div class="f"><label>Position</label><div class="v hl" style="color:var(--r)">SELL</div></div></div>
+<div class="row"><div class="f"><label>Qty</label><div class="v">65 (1 lot)</div></div><div class="f"><label>Expiry</label><div class="v hl">NEXT WEEKLY</div></div><div class="f"><label>Strike Criteria</label><div class="v">ATM pt</div></div><div class="f"><label>Strike Type</label><div class="v hl">ATM (0)</div></div></div>
+<div class="row"><div class="f"><label>SL Type / SL / On</label><div class="v hl">Points / 20 / On Price</div></div><div class="f"><label>TP Type / TP</label><div class="v hl">Points / 0 (no leg target)</div></div><div class="f"><label>Trail SL ☑ (X / Y)</label><div class="v hl">40 / 20</div></div></div></div>
+<div class="note">Long signal → Buy CE + Sell PE (synthetic long). Short signal → Buy PE + Sell CE (synthetic short). Both legs must use the <b>same ATM strike</b> and the <b>same expiry</b>.</div>
+<div class="warn">Trail SL 40 / 20 means: every time a leg moves 40 points in your favour, that leg's stop moves 20 points. A leg stop of 20 points on each leg is about 40 points of Nifty movement. Uncheck "Add Signal Candle Condition".</div></div>
+
+<div class="card"><h2><span class="n">5</span>Entry Conditions (5 condition pairs, all joined with <span class="and">AND</span>)</h2>
+<table><tr><th>#</th><th>Long Entry</th><th>Short Entry</th></tr>
+<tr><td>1</td><td><b>Candle</b> Close <span class="L">Higher than</span> <b>SuperTrend</b> PERIOD(10) MULTIPLIER(3) Interval(0)</td><td>Candle Close <span class="S">Less than</span> SuperTrend (10, 3) Interval(0)</td></tr>
+<tr><td>2</td><td><b>Candle</b> Close <span class="L">Higher than</span> <b>Moving Average</b> EMA 21 Interval(0)</td><td>Candle Close <span class="S">Less than</span> EMA 21</td></tr>
+<tr><td>3</td><td><b>Moving Average</b> EMA 9 <span class="L">Higher than</span> <b>Moving Average</b> EMA 21 Interval(0)</td><td>EMA 9 <span class="S">Less than</span> EMA 21</td></tr>
+<tr style="background:var(--hl)"><td>4</td><td><b>Moving Average</b> EMA <b>18</b> <span class="L">Higher than</span> <b>Moving Average</b> EMA <b>42</b> Interval(0)<br><small>(replaces your old EMA9/21 Interval(30) row; EMA 18/42 on 1H ≈ EMA 9/21 on a 2H chart)</small></td><td>EMA 18 <span class="S">Less than</span> EMA 42</td></tr>
+<tr style="background:var(--hl)"><td>5</td><td><b>Candle</b> Close <span class="L">Higher than</span> <b>VWAP</b> Interval(0) &nbsp;<small>(new)</small></td><td>Candle Close <span class="S">Less than</span> VWAP</td></tr></table>
+<div class="note">Volume filter: <b>don't add one</b>. In the positional backtest it cut profit from about ₹3.0 L to ₹0.8 L.</div>
+<div class="chk" style="margin-top:8px">☑ Exit Conditions: Long Exit = Candle Close <b>Crosses Below</b> Moving Average EMA 21 Interval(0) · Short Exit = Candle Close <b>Crosses Above</b> EMA 21</div></div>
+
+<div class="card"><h2><span class="n">6</span>Risk Management</h2>
+<div class="row"><div class="f"><label>Exit When Over All Profit In Amount (INR)</label><div class="v hl">leave EMPTY</div></div>
+<div class="f"><label>Exit When Over All Loss In Amount (INR)</label><div class="v hl">leave EMPTY</div></div></div>
+<div class="row"><div class="f"><label>Max Trade Cycle</label><div class="v hl">8</div></div><div class="f"><label>No Trade After</label><div class="v">15:00</div></div></div>
+<div class="row"><div class="f"><label>Profit Trailing</label><span class="chip on">No Trailing</span><span class="chip">Lock Fix Profit</span><span class="chip">Trail Profit</span><span class="chip">Lock and Trail</span></div></div>
+<div class="warn">Any Overall Profit/Loss or Lock-and-Trail exit (M2M_SQUAREOFF) stops trading for the rest of the cycle. Your 2-year report showed this. All exits are now on the legs and the EMA21 exit condition instead.</div></div>
+<div class="card"><h2><span class="n">7</span>Strategy Name</h2><div class="v">NIFTY SYNTH BIWEEKLY 15m – ST+EMA+VWAP – LegSL20 Trail40/20 – EMA21 exit</div></div>
+
+<div class="card"><h2><span class="n">★</span>Backtest of these rules (1 lot, after charges)</h2>
+<div class="kpi"><div class="k">Last 2 yrs (1H data)<b style="color:var(--g)">+₹2.59 L</b></div><div class="k">Trades<b>200</b></div><div class="k">Win rate<b>28%</b></div><div class="k">Avg win / loss<b>₹12.5k / ₹3.0k</b></div><div class="k">Max drawdown<b style="color:var(--r)">−₹54 k</b></div></div>
+<div class="note">Year by year: Dec23–Nov24 +₹0.68 L · Nov24–Nov25 +₹0.51 L · Nov25–Nov26 +₹2.01 L. 15-min candles, 28 Aug – 20 Nov 2026: 44 trades, +₹1.11 L, max drawdown −₹13k. Option prices are estimated from Nifty and India VIX, not real option prices.</div></div>
+</div></body></html>
