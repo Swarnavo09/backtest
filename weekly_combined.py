@@ -18,9 +18,12 @@ def week_cycles(days):
     return E,co,pos_in
 
 def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,3,4), exit_mode="pre", ema_exit=True,
-        lots=2, skip_wd=()):
+        lots=2, skip_wd=(), filt=None):
     """lock=(trigger_rs, lock_rs, step_rs, raise_rs) on combined M2M. exit_mode: 'pre' = 15:10 day before expiry, 'exp' = 15:00 expiry day."""
-    L,S=signals(df); t=df.index; o,h,l,c=df.Open.values,df.High.values,df.Low.values,df.Close.values; e21=df.e21.values
+    L,S=signals(df)
+    if filt is not None:
+        fl,fs=filt(df); L=L&fl; S=S&fs
+    t=df.index; o,h,l,c=df.Open.values,df.High.values,df.Low.values,df.Close.values; e21=df.e21.values
     tm=t.hour*60+t.minute; days=t.normalize(); q=LOT*lots
     trades=[]; pos=None; cnt={}
     for i in range(30,len(df)):
@@ -43,6 +46,7 @@ def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,
                 if pos["best"]>=lock[0]:
                     pos["stop"]=max(pos["stop"], lock[1]+math.floor((pos["best"]-lock[0])/lock[2])*lock[3])
             if not ex and ema_exit and ((pos["side"]==1 and c[i]<e21[i]) or (pos["side"]==-1 and c[i]>e21[i])): ex=(m_close,"COND",c[i])
+            if not ex and exit_mode=="intra" and close_t>=910: ex=(m_close,"EOD",c[i])
             if not ex:
                 last_day = (k==n-1) if exit_mode=="pre" else (k==n)
                 if last_day and close_t>=(910 if exit_mode=="pre" else 900): ex=(m_close,"EXPIRY_EXIT",c[i])
