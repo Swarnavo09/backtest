@@ -134,16 +134,19 @@ def backtest(df, p):
         if pos:  # manage open position on this bar
             side, entry, sl, tp_ = pos["side"], pos["entry"], pos["sl"], pos["tp"]
             ex = None
-            if side == 1:
-                if o[i] <= sl: ex = (o[i], "SL")
-                elif l[i] <= sl: ex = (sl, "SL")          # SL assumed first if both hit
-                elif o[i] >= tp_: ex = (o[i], "TP")
-                elif h[i] >= tp_: ex = (tp_, "TP")
-            else:
-                if o[i] >= sl: ex = (o[i], "SL")
-                elif h[i] >= sl: ex = (sl, "SL")
-                elif o[i] <= tp_: ex = (o[i], "TP")
-                elif l[i] <= tp_: ex = (tp_, "TP")
+            hit_sl = (l[i] <= sl) if side == 1 else (h[i] >= sl)
+            hit_tp = (h[i] >= tp_) if side == 1 else (l[i] <= tp_)
+            gap_sl = (o[i] <= sl) if side == 1 else (o[i] >= sl)   # overnight/bar gap through SL
+            gap_tp = (o[i] >= tp_) if side == 1 else (o[i] <= tp_)
+            if gap_sl: ex = (o[i], "SL")
+            elif gap_tp: ex = (o[i], "TP")
+            elif hit_sl and hit_tp: ex = (tp_, "TP") if p.get("tp_first") else (sl, "SL")  # default: SL first
+            elif hit_sl: ex = (sl, "SL")
+            elif hit_tp: ex = (tp_, "TP")
+            if not ex and p.get("be") and not pos.get("be_done"):   # move SL to cost after +1R
+                fav = (h[i] - entry) if side == 1 else (entry - l[i])
+                if fav >= pos["risk"]:
+                    pos["sl"] = entry + side * 2; pos["be_done"] = True
             if not ex and p["sig_exit"] and ((side == 1 and h_exit_long.iat[i]) or (side == -1 and h_exit_short.iat[i])):
                 ex = (c[i], "SIG")
             if not ex and close_t >= p["sq_off"]:
@@ -166,6 +169,8 @@ def backtest(df, p):
         if p["sl"] == "st":
             risk = abs(entry - stl[i])
             risk = min(max(risk, 0.5 * a[i]), 3 * a[i])
+        elif p["sl"] == "pts":
+            risk = p["sl_pts"]
         else:
             risk = p["sl"] * a[i]
         pos = dict(side=side, entry=entry, risk=risk, t=t[i],
