@@ -160,6 +160,8 @@ def backtest(df, p):
                     ex = (c[i], "TIME")
                 elif p.get("exit_ema") and ((side == 1 and df.e9.iat[i] < df.e21.iat[i]) or (side == -1 and df.e9.iat[i] > df.e21.iat[i])):
                     ex = (c[i], "EMA")
+                elif p.get("exit_e21") and ((side == 1 and c[i] < df.e21.iat[i]) or (side == -1 and c[i] > df.e21.iat[i])):
+                    ex = (c[i], "E21")
                 elif p.get("exit_st") and ((side == 1 and c[i] < stl[i]) or (side == -1 and c[i] > stl[i])):
                     ex = (c[i], "ST")
                 elif p.get("exit_vwap") and ((side == 1 and c[i] < df.vwap.iat[i]) or (side == -1 and c[i] > df.vwap.iat[i])):
