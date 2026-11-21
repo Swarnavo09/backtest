@@ -59,9 +59,9 @@ def stats(tr):
     n=tr.pnl.values; eq=np.cumsum(n); pos=n[n>0]
     top5=np.sort(pos)[::-1][:5].sum()/n.sum() if n.sum()>0 else np.nan
     m=tr.set_index("exit").pnl.resample("ME").sum()
-    return dict(n=len(n),net=round(n.sum()),win=round((n>0).mean()*100),pf=round(pos.sum()/-n[n<=0].sum(),2) if (n<=0).any() else 9.9,
-                dd=round((eq-np.maximum.accumulate(eq)).min()),top1_share=round(pos.max()/n.sum()*100) if n.sum()>0 else None,
-                top5_share=round(top5*100) if n.sum()>0 else None,months_pos=f"{(m>0).sum()}/{len(m)}",worst_mo=round(m.min()),avg_win=round(pos.mean()),avg_loss=round(n[n<=0].mean()) if (n<=0).any() else 0)
+    return dict(n=len(n),net=round(n.sum()),win=round((n>0).mean()*100),pf=round(pos.sum()/-n[n<=0].sum(),2) if ((n<=0).any() and n[n<=0].sum()<0) else 9.9,
+                dd=round((eq-np.maximum.accumulate(eq)).min()),top1_share=round(pos.max()/n.sum()*100) if (n.sum()>0 and len(pos)) else None,
+                top5_share=round(top5*100) if n.sum()>0 else None,months_pos=f"{(m>0).sum()}/{len(m)}",worst_mo=round(m.min()),avg_win=round(pos.mean()) if len(pos) else 0,avg_loss=round(n[n<=0].mean()) if (n<=0).any() else 0)
 if __name__=="__main__":
     df=indicators(load("60m"),2); rows=[]
     for kind in ["weekly","monthly"]:
