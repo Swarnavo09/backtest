@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--blue:#1d4ed8;--bd:#e5e7eb;--mut:#6b7280;--g:#15803d;--r:#dc2626;--hl:#fef3c7}
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font:13px/1.45 system-ui,Segoe UI,Roboto,Arial;color:#111827}
+.wrap{width:860px;padding:18px}
+h1{font-size:19px;margin:0 0 2px}.sub{color:var(--mut);margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.n{background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.f{flex:1;min-width:150px}.f label{display:block;font-size:11px;color:var(--mut);margin-bottom:3px}
+.v{border:1px solid var(--bd);border-radius:6px;padding:6px 9px;background:#f9fafb;font-weight:600}
+.v.hl{background:var(--hl);border-color:#f59e0b}
+.chip{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:4px 10px;margin:2px 4px 2px 0;color:var(--mut)}
+.chip.on{background:#dbeafe;border-color:var(--blue);color:var(--blue);font-weight:700}
+.chk{font-weight:600}.chk.off{color:var(--mut);font-weight:400;text-decoration:line-through}
+table{width:100%;border-collapse:collapse}td,th{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f9fafb;font-size:11px;color:var(--mut)}.L{color:var(--g);font-weight:700}.S{color:var(--r);font-weight:700}
+.and{display:inline-block;background:var(--blue);color:#fff;border-radius:4px;padding:1px 8px;font-size:11px}
+.note{background:#eff6ff;border-left:3px solid var(--blue);padding:7px 10px;margin-top:8px;font-size:12px}
+.warn{background:#fff7ed;border-left:3px solid #f97316;padding:7px 10px;margin-top:8px;font-size:12px}
+.leg{border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin:8px 0}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}.k{flex:1;min-width:120px;border:1px solid var(--bd);border-radius:8px;padding:8px}.k b{display:block;font-size:17px}
+</style></head><body><div class="wrap">
+<h1>New strategy form: Weekly synthetic, 2 lots (filled-in guide)</h1>
+<div class="sub">My guide, laid out in the same sections as your second screenshot. It is <b>not</b> a screenshot of the app. Highlighted values are the ones to enter. Red boxes mark settings this form can't express.</div>
+
+<div class="card"><h2><span class="n">1</span>Basics</h2>
+<div class="row"><div class="f"><label>Strategy name</label><div class="v hl">NIFTY Weekly Synth – Thu/Fri – SL8k TP40k – LONG</div></div></div>
+<div class="row"><div class="f"><label>Strategy type</label><div class="v">F&amp;O</div></div><div class="f"><label>Trade type</label><span class="chip">Intraday</span><span class="chip on">Positional</span></div><div class="f"><label>Segment</label><span class="chip on">Options</span><span class="chip">Futures</span></div></div>
+<div class="row"><div class="f"><label>Capital required (₹)</label><div class="v hl">6,00,000</div></div></div>
+<div class="note">Positional carries the position overnight to the weekly expiry, which is what the backtest did.</div></div>
+
+<div class="card"><h2><span class="n">2</span>Legs</h2>
+<div class="leg"><b>Leg 1</b><div class="row"><div class="f"><label>Instrument</label><div class="v hl">NIFTY · CE · ATM</div></div><div class="f"><label>Action</label><div class="v hl" style="color:var(--g)">BUY</div></div><div class="f"><label>Lots</label><div class="v hl">2 (130 qty)</div></div><div class="f"><label>Expiry</label><div class="v hl">Current weekly</div></div></div>
+<div class="row"><div class="f"><label>Leg SL / target</label><div class="v hl">None (only the total-MTM exits in section 4)</div></div></div></div>
+<div class="leg"><b>Leg 2</b><div class="row"><div class="f"><label>Instrument</label><div class="v hl">NIFTY · PE · ATM</div></div><div class="f"><label>Action</label><div class="v hl" style="color:var(--r)">SELL</div></div><div class="f"><label>Lots</label><div class="v hl">2 (130 qty)</div></div><div class="f"><label>Expiry</label><div class="v hl">Current weekly</div></div></div>
+<div class="row"><div class="f"><label>Leg SL / target</label><div class="v hl">None</div></div></div></div>
+<div class="row"><div class="f"><label>Wait and trade</label><div class="v">OFF</div></div><div class="f"><label>Re-entry / re-execute</label><div class="v">OFF</div></div></div>
+<div class="warn"><b>Short side:</b> this form has fixed legs. To trade short, make a second strategy (copy it) with Leg 1 = BUY PE ATM and Leg 2 = SELL CE ATM, and name it "… SHORT".</div></div>
+
+<div class="card"><h2><span class="n">3</span>Entry</h2>
+<div class="row"><div class="f"><label>Start time / seconds</label><div class="v hl">09:30 : 00</div></div><div class="f"><label>End time / seconds</label><div class="v hl">15:00 : 00</div></div></div>
+<div class="row"><div class="f"><label>Entry based on</label><div class="v">Weekdays</div></div><div class="f"><label>Enter on days</label><span class="chip">Mon</span><span class="chip">Tue</span><span class="chip">Wed</span><span class="chip on">Thu</span><span class="chip on">Fri</span><span class="chip">Sat</span></div></div>
+<div class="warn" style="border-left-color:#dc2626;background:#fef2f2"><b>Not in this form:</b> the indicator entry (SuperTrend 10,3 · Close vs EMA21 · EMA9 vs EMA21 · EMA18 vs EMA42 · Close vs VWAP · close beyond previous-day high/low), choosing long or short from the signal, the 1H/30-min candle, and Underlying = Future. Without these the strategy would enter at a fixed time, which is <b>not</b> the backtested strategy. See section 6.</div></div>
+
+<div class="card"><h2><span class="n">4</span>Exit (total position, 2 lots)</h2>
+<div class="row"><div class="f"><label>Profit MTM</label><div class="v hl">Total amount (₹)</div></div><div class="f"><label>Profit value</label><div class="v hl">40,000</div></div></div>
+<div class="row"><div class="f"><label>Stoploss MTM</label><div class="v hl">Total amount (₹)</div></div><div class="f"><label>Stoploss value</label><div class="v hl">8,000</div></div></div>
+<div class="row"><div class="f"><label>Trailing stoploss</label><div class="v hl">Lock &amp; trail (MTM)</div></div></div>
+<div class="row"><div class="f"><label>Activate at</label><div class="v hl">16,000</div></div><div class="f"><label>Lock profit at</label><div class="v hl">300</div></div><div class="f"><label>When profit increases by</label><div class="v hl">1,600</div></div><div class="f"><label>Increase TSL by</label><div class="v hl">1,600</div></div></div>
+<div class="row"><div class="f"><label>Timed exit: exit time</label><div class="v hl">15:00 on expiry day (Tuesday)</div></div></div>
+<div class="warn" style="border-left-color:#dc2626;background:#fef2f2"><b>Not in this form:</b> the EMA21 exit condition (close crosses back over EMA21). If the app has no indicator exit, the total-MTM exits above and the expiry-day exit still apply.</div></div>
+
+<div class="card"><h2><span class="n">5</span>Advanced</h2>
+<div class="row"><div class="f"><label>Initiation price</label><div class="v hl">Limit (LTP)</div></div><div class="f"><label>Revision attempts</label><div class="v hl">3</div></div><div class="f"><label>Increase by</label><div class="v hl">2 ticks</div></div><div class="f"><label>Timeout</label><div class="v hl">3 seconds</div></div></div>
+<div class="row"><div class="f"><label>Final action</label><div class="v hl">Execute at market price</div></div><div class="f"><label>Exit at market price</label><div class="v hl">Yes</div></div></div>
+<div class="row"><div class="f"><label>Tranche size</label><div class="v">100%</div></div><div class="f"><label>Entry setting</label><div class="v hl">Long first</div></div><div class="f"><label>Exit shorts first</label><div class="v hl">Yes</div></div></div>
+<div class="row"><div class="f"><label>Reactivate on exit after</label><div class="v hl">Never (1 trade a week)</div></div><div class="f"><label>Check conditions every</label><div class="v">Check continuously</div></div></div>
+<div class="note">"Long first" buys the CE before selling the PE, which usually lowers the margin needed. "Exit shorts first" closes the short PE first, so you're never left holding an unhedged short.</div></div>
+
+<div class="card"><h2><span class="n">6</span>How to keep the indicator entry</h2>
+<div class="note">Option A (recommended): keep the signal logic in TradingView. Run my Pine script (switched to alerts) on NIFTY1! 1H and send its BUY/SELL alerts by webhook to the app, if the app accepts TradingView signals. Option B: use the app's condition/keyword builder, if it has one, and recreate the 6 entry rows there. Option C: keep running the strategy on Algorooms, which already has the indicator conditions.</div></div>
+<div class="card"><h2><span class="n">7</span>Marketplace</h2><div class="row"><div class="f"><label>Public strategy</label><div class="v">No</div></div></div></div>
+</div></body></html>
