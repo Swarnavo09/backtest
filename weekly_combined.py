@@ -18,7 +18,7 @@ def week_cycles(days):
     return E,co,pos_in
 
 def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,3,4), exit_mode="pre", ema_exit=True,
-        lots=2, skip_wd=(), filt=None):
+        lots=2, skip_wd=(), filt=None, exit_before=None, no_entry_last=None, kstart=1, kill=True, hedge=0):
     """lock=(trigger_rs, lock_rs, step_rs, raise_rs) on combined M2M. exit_mode: 'pre' = 15:10 day before expiry, 'exp' = 15:00 expiry day."""
     L,S=signals(df)
     if filt is not None:
@@ -33,7 +33,7 @@ def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,
         Trem=lambda: max((cy+pd.Timedelta(hours=15.5)-(t[i]+pd.Timedelta(minutes=bar))).total_seconds(),60)/86400/365
         if pos:
             T=max((pos["exp"]+pd.Timedelta(hours=15.5)-(t[i]+pd.Timedelta(minutes=bar))).total_seconds(),60)/86400/365
-            V=lambda s: pos["side"]*(bs(s,pos["K"],T,iv,True)-bs(s,pos["K"],T,iv,False))
+            V=lambda s: pos["side"]*(bs(s,pos["K"],T,iv,True)-bs(s,pos["K"],T,iv,False)) + (bs(s,pos["KH"],T,iv,pos["side"]==-1) if pos["KH"] else 0.0)
             m_open=(V(o[i])-pos["V0"])*q; adv=l[i] if pos["side"]==1 else h[i]; fav=h[i] if pos["side"]==1 else l[i]
             m_worst=(V(adv)-pos["V0"])*q; m_best=(V(fav)-pos["V0"])*q; m_close=(V(c[i])-pos["V0"])*q
             stop=pos["stop"]; ex=None
@@ -48,22 +48,30 @@ def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,
             if not ex and ema_exit and ((pos["side"]==1 and c[i]<e21[i]) or (pos["side"]==-1 and c[i]>e21[i])): ex=(m_close,"COND",c[i])
             if not ex and exit_mode=="intra" and close_t>=910: ex=(m_close,"EOD",c[i])
             if not ex:
-                last_day = (k==n-1) if exit_mode=="pre" else (k==n)
-                if last_day and close_t>=(910 if exit_mode=="pre" else 900): ex=(m_close,"EXPIRY_EXIT",c[i])
+                if exit_before is not None:
+                    pk,pn=pos["kn"] if False else (k,n)
+                    last_day = (k==n-exit_before); tcut = 910 if exit_before>0 else 900
+                else:
+                    last_day = (k==n-1) if exit_mode=="pre" else (k==n); tcut = 910 if exit_mode=="pre" else 900
+                if last_day and close_t>=tcut: ex=(m_close,"EXPIRY_EXIT",c[i])
             if ex:
-                ce_in,pe_in=pos["ce"],pos["pe"]; cost=leg_cost(ce_in,ce_in,pos["side"]==-1,lots)+leg_cost(pe_in,pe_in,pos["side"]==1,lots)
+                ce_in,pe_in=pos["ce"],pos["pe"]; cost=leg_cost(ce_in,ce_in,pos["side"]==-1,lots)+leg_cost(pe_in,pe_in,pos["side"]==1,lots)+(leg_cost(pos["h0"],pos["h0"],False,lots) if pos["KH"] else 0)
                 trades.append(dict(entry_time=pos["t"],exit_time=t[i],side=pos["side"],gross=ex[0],cost=cost,net=ex[0]-cost,reason=ex[1],
                                    entry_spot=pos["spot"],spot_move=(ex[2]-pos["spot"])*pos["side"],entry_wd=pos["t"].dayofweek,cycle_day=pos["k"],
                                    cycle=str(pos["exp"].date()),prem=(ce_in+pe_in)/2))
-                if ex[1].startswith("M2M"): cnt[pos["exp"]]=10**9
+                if kill and ex[1].startswith("M2M"): cnt[pos["exp"]]=10**9
                 pos=None
             continue
-        if k not in entry_days or cnt.get(cy,0)>=cap or close_t<570 or close_t>900 or t[i].dayofweek in skip_wd: continue
-        if exit_mode=="pre" and k>=n-1: continue
+        if no_entry_last is not None:
+            if k < kstart or k > n-no_entry_last: continue
+        elif k not in entry_days: continue
+        if cnt.get(cy,0)>=cap or close_t<570 or close_t>900 or t[i].dayofweek in skip_wd: continue
+        if no_entry_last is None and exit_mode=="pre" and k>=n-1: continue
         side=1 if L[i] else (-1 if S[i] else 0)
         if not side: continue
         K=round(c[i]/50)*50; T=Trem(); ce=bs(c[i],K,T,iv,True); pe=bs(c[i],K,T,iv,False)
-        pos=dict(side=side,K=K,exp=cy,t=t[i],spot=c[i],V0=side*(ce-pe),ce=ce,pe=pe,stop=-sl_rs,best=0.0,k=k)
+        KH=(K-side*hedge) if hedge else 0; h0=bs(c[i],KH,T,iv,side==-1) if hedge else 0.0
+        pos=dict(side=side,K=K,exp=cy,t=t[i],spot=c[i],V0=side*(ce-pe)+h0,ce=ce,pe=pe,stop=-sl_rs,best=0.0,k=k,KH=KH,h0=h0)
         cnt[cy]=cnt.get(cy,0)+1
     return pd.DataFrame(trades)
 
