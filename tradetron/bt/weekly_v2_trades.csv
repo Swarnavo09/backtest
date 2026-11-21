@@ -1,0 +1,41 @@
+entry,exit,side,pnl,exit_type,spot_move,reason
+2024-10-25 10:10:00,2024-10-25 15:16:00,SHORT,5882,Universal Exit,43.8,Trail/lock (profit)
+2024-12-20 10:00:00,2024-12-20 10:19:00,SHORT,-9893,Universal Exit,-89.5,Stop-loss
+2025-01-10 10:05:00,2025-01-10 10:23:00,SHORT,-8574,Universal Exit,-78.8,Stop-loss
+2025-01-24 10:01:00,2025-01-24 10:28:00,SHORT,-8808,Universal Exit,-48.4,Stop-loss
+2025-02-14 10:36:00,2025-02-14 14:35:00,SHORT,11596,Universal Exit,65.7,Trail/lock (profit)
+2025-02-21 10:00:00,2025-02-27 09:55:00,SHORT,40222,Universal Exit,270.4,Target
+2025-02-28 11:50:00,2025-03-03 12:47:00,SHORT,12519,Universal Exit,90.5,Trail/lock (profit)
+2025-04-04 10:01:00,2025-04-07 09:15:00,SHORT,124436,Universal Exit,959.6,Target
+2025-07-11 10:19:00,2025-07-15 09:16:00,SHORT,14105,Universal Exit,101.7,Trail/lock (profit)
+2025-07-18 10:02:00,2025-07-21 09:55:00,SHORT,-325,Universal Exit,-26.7,Expiry/other exit (loss)
+2025-07-25 10:16:00,2025-07-28 10:16:00,SHORT,65,Universal Exit,-9.7,Trail/lock (profit)
+2025-09-18 10:45:00,2025-09-18 13:02:00,LONG,-9568,Universal Exit,-65.0,Stop-loss
+2025-09-25 11:43:00,2025-09-26 13:52:00,SHORT,40651,Universal Exit,312.8,Target
+2025-10-16 10:29:00,2025-10-17 11:28:00,LONG,40352,Universal Exit,313.9,Target
+2025-11-06 10:09:00,2025-11-07 11:31:00,SHORT,18629,Universal Exit,115.8,Trail/lock (profit)
+2025-11-13 10:08:00,2025-11-14 09:15:00,LONG,-15190,Universal Exit,-77.8,Stop-loss
+2025-11-27 10:03:00,2025-11-27 11:48:00,LONG,-8716,Universal Exit,-50.1,Stop-loss
+2026-01-08 11:03:00,2026-01-09 12:37:00,SHORT,40514,Universal Exit,328.6,Target
+2026-02-26 11:01:00,2026-02-26 11:26:00,SHORT,-9425,Universal Exit,-68.5,Stop-loss
+2026-02-27 10:00:00,2026-03-02 09:15:00,SHORT,77188,Universal Exit,473.1,Target
+2026-03-13 10:01:00,2026-03-13 11:36:00,SHORT,-8008,Universal Exit,-43.8,Stop-loss
+2026-04-02 10:07:00,2026-04-02 11:58:00,SHORT,-10550,Universal Exit,-97.3,Stop-loss
+2026-04-16 11:04:00,2026-04-16 11:45:00,LONG,-8814,Universal Exit,-80.2,Stop-loss
+2026-04-24 11:13:00,2026-04-27 09:16:00,SHORT,-16159,Universal Exit,-104.4,Stop-loss
+2026-04-30 10:01:00,2026-04-30 12:25:00,SHORT,-9139,Universal Exit,-53.4,Stop-loss
+2026-05-14 10:49:00,2026-05-14 11:21:00,SHORT,-8158,Universal Exit,-84.4,Stop-loss
+2026-06-25 10:16:00,2026-06-25 14:16:00,LONG,-10218,Universal Exit,-60.8,Stop-loss
+2026-07-24 10:03:00,2026-07-24 11:48:00,SHORT,-8522,Universal Exit,-72.3,Stop-loss
+2026-07-30 11:35:00,2026-08-03 09:56:00,LONG,40202,Universal Exit,289.6,Target
+2026-08-06 11:12:00,2026-08-07 09:15:00,LONG,-14970,Universal Exit,-61.2,Stop-loss
+2026-08-13 10:31:00,2026-08-13 11:58:00,SHORT,-8756,Universal Exit,-62.1,Stop-loss
+2026-09-03 11:05:00,2026-09-04 10:00:00,SHORT,-526,Exit,-7.4,Signal exit
+2026-09-10 10:09:00,2026-09-11 13:56:00,SHORT,9464,Universal Exit,34.9,Trail/lock (profit)
+2026-09-17 11:01:00,2026-09-17 12:00:00,SHORT,-8177,Exit,-55.3,Signal exit
+2026-09-18 11:06:00,2026-09-18 11:07:00,SHORT,-982,Exit,-2.8,Signal exit
+2026-09-18 11:18:00,2026-09-18 11:19:00,SHORT,52,Exit,-2.3,Signal exit
+2026-09-24 10:18:00,2026-09-25 14:04:00,SHORT,-741,Universal Exit,62.1,Expiry/other exit (loss)
+2026-10-01 11:10:00,2026-10-01 14:03:00,SHORT,40287,Universal Exit,312.8,Target
+2026-10-08 10:40:00,2026-10-09 09:16:00,SHORT,8028,Universal Exit,49.8,Trail/lock (profit)
+2026-10-15 10:01:00,2026-10-16 09:28:00,LONG,7644,Universal Exit,87.6,Trail/lock (profit)

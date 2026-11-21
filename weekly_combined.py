@@ -18,14 +18,14 @@ def week_cycles(days):
     return E,co,pos_in
 
 def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,3,4), exit_mode="pre", ema_exit=True,
-        lots=2, skip_wd=(), filt=None, exit_before=None, no_entry_last=None, kstart=1, kill=True, hedge=0):
+        lots=2, skip_wd=(), filt=None, exit_before=None, no_entry_last=None, kstart=1, kill=True, hedge=0, no_same_day=False, max_sl_cycle=None, no_entry_after=None):
     """lock=(trigger_rs, lock_rs, step_rs, raise_rs) on combined M2M. exit_mode: 'pre' = 15:10 day before expiry, 'exp' = 15:00 expiry day."""
     L,S=signals(df)
     if filt is not None:
         fl,fs=filt(df); L=L&fl; S=S&fs
     t=df.index; o,h,l,c=df.Open.values,df.High.values,df.Low.values,df.Close.values; e21=df.e21.values
     tm=t.hour*60+t.minute; days=t.normalize(); q=LOT*lots
-    trades=[]; pos=None; cnt={}
+    trades=[]; pos=None; cnt={}; last_exit_day=None; slc={}
     for i in range(30,len(df)):
         d=days[i]
         if d not in pos_in: continue
@@ -60,8 +60,13 @@ def run(df, bar, E, co, pos_in, sl_rs, tp_rs, lock=None, cap=1, entry_days=(1,2,
                                    entry_spot=pos["spot"],spot_move=(ex[2]-pos["spot"])*pos["side"],entry_wd=pos["t"].dayofweek,cycle_day=pos["k"],
                                    cycle=str(pos["exp"].date()),prem=(ce_in+pe_in)/2))
                 if kill and ex[1].startswith("M2M"): cnt[pos["exp"]]=10**9
+                last_exit_day=d
+                if ex[1]=="M2M_SL": slc[pos["exp"]]=slc.get(pos["exp"],0)+1
                 pos=None
             continue
+        if max_sl_cycle is not None and slc.get(cy,0)>=max_sl_cycle: continue
+        if no_entry_after is not None and close_t>no_entry_after: continue
+        if no_same_day and last_exit_day is not None and d==last_exit_day: continue
         if no_entry_last is not None:
             if k < kstart or k > n-no_entry_last: continue
         elif k not in entry_days: continue
